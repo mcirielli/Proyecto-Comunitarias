@@ -1,5 +1,89 @@
 # Reporte del Sprint 0 — Comunitarias
 
+## Auditoría final y cierre formal — 9 de octubre de 2026
+
+**Veredicto: APROBADO CON OBSERVACIONES. Sprint 0 cerrado para su alcance de infraestructura. Bloqueantes reales identificados: ninguno.** Se aceptan las validaciones reportadas por el usuario y se distinguen de las repetidas por el responsable técnico. No se inicia Sprint 1 ni se aprueban nuevas decisiones arquitectónicas.
+
+La infraestructura está implementada: monolito por capas, backend Java 21/Spring Boot, frontend React/Vite/TypeScript/Tailwind, health público, protección general de rutas, BCrypt y configuración JDBC por entorno. No hay entidades, repositorios ni servicios comerciales, migraciones, login funcional, Strategy o State. Estas ausencias son correctas para el Sprint 0 autorizado.
+
+### Evidencias y resultados actuales
+
+| Criterio | Evidencia comprobada en esta auditoría | Evidencia reportada por el usuario / límite |
+|---|---|---|
+| Backend compilable | POM release 21; JDK Temurin 21.0.12.1 disponible; clases existentes permiten arrancar seis tests | Maven BUILD SUCCESS reportado. La repetición completa de verify no pasó en el entorno restringido; no se certifica aquí una nueva compilación completa |
+| Pruebas backend | Ejecución independiente Maven surefire:test: BUILD SUCCESS, 6 tests, 0 fallos, 0 errores, 0 omitidos, perfil dev y Java 21 | Usa clases compiladas existentes; no reemplaza una ejecución completa de verify |
+| Frontend compilable | La etapa TypeScript de npm run build no emitió errores; Vite build con --configLoader runner terminó código 0, 31 módulos transformados | npm run build exitoso reportado; su repetición estándar falló cargando configuración por acceso denegado |
+| Health público | GET http://localhost:8080/api/health: 200, JSON {"application":"Comunitarias","status":"UP"} | Comprobado nuevamente; no consulta PostgreSQL |
+| React consume API | Código Fetch real, validación de JSON, timeout y reintento; http://localhost:5173 devuelve 200 y documento con raíz React | Pantalla «API disponible» reportada por el usuario. Esta auditoría no repitió la observación visual ni ejecutó un navegador automatizado |
+| PostgreSQL/Supabase | Perfil JDBC, driver, variables obligatorias y documentación revisados | Conexión desde IntelliJ y SELECT 1 comprobados por el usuario. No se repitió JDBC desde Spring Boot ni se verificó el pool Hikari |
+| Protección de rutas | GET /api/pedidos sin autenticación: 401; test de ruta futura pasa | No existe controlador comercial de pedidos; 401 demuestra filtro, no módulo de pedidos |
+| CORS | GET y OPTIONS con Origin http://localhost:5173: 200 y Access-Control-Allow-Origin correspondiente; origen https://example.invalid: 403 sin dicho header; tests pasan | No se ensayaron todos los métodos ni el origen 127.0.0.1 separadamente |
+| BCrypt | passwordEncoderUsesBcrypt pasa junto a los cinco tests HTTP | No hay usuarios reales ni login funcional |
+| Git y secretos | Repositorio local, rama main y remoto correcto; main...origin/main: 0 adelantados, 0 atrasados. .env, dependencias, target, dist, caché e IntelliJ ignorados. No hay rutas sensibles versionadas ni candidatos en búsqueda de patrones de secretos | Primer push exitoso, privacidad y sincronización remota reportados. No se hizo fetch ni consulta GitHub; la coincidencia es con la referencia origin/main local. Revisión por patrones no certifica todo el historial |
+
+### Configuración y límites de aceptación
+
+Backend: Spring Boot 3.5.16; Maven; java.version=21; starters Web, Data JPA, Security, Validation y Test/JUnit 5, driver PostgreSQL. Único endpoint implementado GET /api/health. Paquetes de dominio/repositorio/servicio/mapper reservados mediante package-info.java. No se agregan dependencias ni se alteran versiones.
+
+Perfil dev por defecto: desactiva DataSource/JPA, permitiendo HTTP sin PostgreSQL. Perfil supabase: requiere SUPABASE_JDBC_URL, SUPABASE_DB_USER y SUPABASE_DB_PASSWORD; Hikari máximo 3, timeouts 10000 ms. No activar dev y supabase juntos. ddl-auto=none, sql.init.mode=never y open-in-view=false conservados. La URL de ejemplo requiere sslmode=require; no se verificó SSL desde esta auditoría. Las tres variables están ausentes en el proceso del auditor; esto no invalida la conexión configurada en IntelliJ por el usuario. Spring no carga automáticamente .env: suministrar las variables al proceso o run configuration. No se inventaron ni imprimieron credenciales.
+
+Frontend: lockfile presente y versionado, formato 3. Versiones resueltas: React/React DOM 19.3.0, Vite 7.3.7, TypeScript 5.9.3, Tailwind y plugin 4.3.3. VITE_API_BASE_URL configurable, default http://localhost:8080; VITE_* públicos sin secretos. Servidor localhost:5173, strictPort; plugins React y Tailwind; TypeScript estricto. El lockfile concreta los rangos declarados sin implicar cambio de arquitectura.
+
+Seguridad: solo GET /api/health público; resto authenticated; entrypoint 401; formLogin/httpBasic/logout desactivados; usuario automático excluido; CSRF activo; BCrypt preparado. Roles CLIENTE, OPERACIONES y GERENCIA documentados para implementación posterior, no autorización por rol ya implementada. CORS con orígenes locales explícitos, credenciales permitidas y headers Content-Type/X-CSRF-TOKEN/X-XSRF-TOKEN. Las sesiones y tokens CSRF para React deberán resolverse en el futuro login aprobado, sin JWT/OAuth.
+
+### Comandos de auditoría y errores conservados
+
+Se usó el launcher Maven de IntelliJ mediante Java 21, classworlds.conf=.../maven3/bin/m2.conf, maven.home=.../maven3, maven.multiModuleProjectDirectory=backend y classpath=.../boot/plexus-classworlds-2.11.0.jar. Los siguientes representan sus objetivos y opciones, no comandos de Maven en PATH (Maven no está en PATH):
+
+~~~text
+-o -B verify
+-Dmaven.repo.local=C:/Users/Noxie-PC/.m2/repository -o -B verify
+-Dmaven.repo.local=C:/Users/Noxie-PC/.m2/repository -o -B surefire:test
+~~~
+
+- Primer verify: código 1, no pudo crear repositorio local C:\.m2\repository.
+- Reintento con caché existente: código 1, llegó a javac release 21; «Fatal Error: Cannot close compiler resources» y error sobre spring-boot-starter-tomcat-3.5.16.jar. No produjo verify exitoso ni es prueba de una regresión del código. La causa exacta de ese fallo de recursos no quedó resuelta; conservar diagnóstico y repetir en el entorno normal del usuario.
+- surefire:test: código 0, BUILD SUCCESS y seis pruebas aprobadas sobre clases existentes. No se ejecutó clean ni se asegura recompilación por este objetivo.
+- npm run build, invocado mediante node/npm-cli.js: código 1 en Vite, «Cannot read directory ../../../..: Acceso denegado» y «Could not resolve .../vite.config.ts». La etapa tsc -b anterior terminó, porque Vite llegó a ejecutarse.
+- node node_modules/vite/bin/vite.js build --configLoader runner: código 0, producción generada en dist. Es una alternativa de ejecución para esta auditoría; no se modificó el script ni la configuración.
+- java -version: Temurin 21.0.12.1. HTTP GET health/pedidos, GET/OPTIONS CORS y GET frontend ejecutados mediante Fetch real.
+- git status --short --branch inicialmente rechazó dubious ownership por usuario sandbox distinto del propietario. Se repitió con -c safe.directory=<raíz> solo en cada comando; no se escribió configuración global. remote -v, ls-files, rev-list --left-right --count main...origin/main y check-ignore ejecutados sin commit/push/fetch.
+- La herramienta de consola estándar falló con helper_unknown_error/setup refresh; se utilizaron procesos Node. La consulta de variables se realizó con PowerShell mostrando solo presencia/ausencia.
+- Surefire emitió advertencias de Mockito/Byte Buddy por agente dinámico, class sharing y demora SecureRandom; no causaron fallos. No se agregaron opciones para ocultarlas.
+
+Estos errores limitan la reproducción dentro del entorno del auditor. Los éxitos comunicados por el usuario se conservan como evidencias reportadas, no se sustituyen por supuestos resultados del auditor. Los errores iniciales de instalación/red y ausencia de JDK/lockfile del reporte histórico ya no describen el estado actual del equipo.
+
+### Matriz de cierre de tareas
+
+| Tarea | Estado final | Criterio de aceptación y observación |
+|---|---|---|
+| S0-01 Estructura | Completada | Raíz, backend, frontend, database, docs y context presentes; sin cambios académicos en esta auditoría |
+| S0-02 Backend | Completada con observación | Java 21/configuración, health, CORS y perfiles presentes; build reportado y tests repetidos; verify completo no repetido con éxito |
+| S0-03 Frontend | Completada con observación | Stack y Fetch real presentes; build estándar y pantalla reportados; tsc y build alternativo comprobados |
+| S0-04 PostgreSQL | Completada para preparación | JDBC y variables preparados; IntelliJ/SELECT 1 reportados. Integración del proceso Spring con perfil supabase pendiente, sin esquema de negocio |
+| S0-05 Seguridad inicial | Completada | Health público, protección, CORS y BCrypt comprobados; login completo no es criterio de este sprint |
+| S0-06 Control de versiones | Completada | Ignore verificado; remoto configurado y lockfile versionado; primer push reportado, sin nuevas publicaciones automáticas |
+| S0-07 Documentación | Completada | Arquitectura/decisiones/README y documentos de cierre existentes; estos dos registros actualizados |
+
+La autorización inicial permitía dejar la verificación real Supabase pendiente si no había credenciales. No se convierte ahora la falta de una prueba Spring→Supabase en bloqueante retrospectivo. Tampoco se requieren login, entidades ni pantallas comerciales para cerrar Sprint 0. El veredicto reconoce evidencia externa explícita y límites de repetición; no declara verificados localmente todos los criterios de runtime.
+
+### Observaciones trasladadas y preparación del Sprint 1
+
+1. Registrar una ejecución reproducible de mvn verify y npm run build en el entorno normal con Java 21, conservando logs de éxito; investigar el fallo de cierre de recursos del compilador si también ocurre allí. Los intentos de auditoría no demostraron un defecto funcional bloqueante.
+2. Ejecutar Spring con solo perfil supabase y variables propias; comprobar conexión JDBC desde ese proceso antes de desarrollar persistencia. IntelliJ/SELECT 1 valida el acceso desde IntelliJ, no el datasource de la aplicación. No inferir conexión desde health ni crear esquema sin autorización.
+3. Conservar evidencia visual de React consumiendo health; comprobar estado no disponible/reintento al detener API. Ese caso de error no se observó en esta auditoría.
+4. Revisar los avisos de agentes de tests si se cambia JDK. No son fallos de aceptación actuales.
+5. Obtener validación docente del recorte de rentabilidad y reportes; continúa pendiente y no se presenta como aprobado por UADE. No modificar las decisiones técnicas aprobadas.
+6. Presentar un backlog acotado para aprobación antes de iniciar Sprint 1. Sugerencia para cuatro integrantes: backend/contratos y pruebas; frontend/integración; persistencia/JDBC y modelo propuesto; documentación, revisión académica y coordinación. Los usuarios, permisos por rol, sesiones/CSRF, entidades y módulos se planifican después, no se implementan con este cierre.
+
+**Cambios de esta auditoría:** únicamente docs/REPORTE_SPRINT_0.md y docs/SPRINT_0.md como fuentes versionables. Las pruebas generan artefactos locales ignorados en target/dist y metadatos de TypeScript. No se modificó código, configuración, decisiones, PDFs/PPTX, ni se hicieron commits/push. El árbol histórico siguiente no incluye el package-lock.json ahora presente; la sección de evidencias actualiza esa diferencia.
+
+### Conservación del registro previo
+
+Las secciones originales que siguen constituyen el registro histórico de la primera ejecución, anterior a las validaciones reportadas por el usuario y esta auditoría. Sus expresiones «pendiente», «no cerrado», «no ejecutado» o ausencia de Git/JDK/lockfile son históricas: el estado vigente es el cierre anterior. Se conservan íntegramente para no ocultar errores ni sobrescribir la trazabilidad.
+
+---
+
 Fecha del registro: 9 de octubre de 2026. Alcance: infraestructura, configuración y estructura inicial, tareas S0-01 a S0-07 autorizadas por el usuario.
 
 Este reporte reconstruye la ejecución de esta sesión y contrasta sus resultados con los archivos actuales. No constituye una nueva ejecución de compilaciones o pruebas. Distingue implementación escrita, comprobaciones efectivamente realizadas y validaciones pendientes.

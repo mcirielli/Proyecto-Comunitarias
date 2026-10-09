@@ -1,55 +1,56 @@
-# Sprint 0 — infraestructura inicial
+# Sprint 0 — cierre formal
 
-Registro: 9 de octubre de 2026. Alcance exclusivamente S0-01 a S0-07. **Implementación preparada; validación ejecutable pendiente por restricciones del entorno. Sprint 0 no se declara cerrado.**
+Fecha: 9 de octubre de 2026. Alcance exclusivamente infraestructura S0-01 a S0-07.
 
-## Estado de tareas
+**APROBADO CON OBSERVACIONES. Sprint 0 cerrado. Bloqueantes reales identificados: ninguno.** Se aceptan las evidencias reportadas por el usuario y se distinguen de las repetidas en auditoría. No se inicia Sprint 1.
 
-| Tarea | Estado |
-|---|---|
-| S0-01 | Estructura completada; fuentes académicas y planificación original conservadas |
-| S0-02 | Maven/Java 21, Spring Boot 3.5.16, paquetes, CORS, perfiles y health creados; compilación pendiente |
-| S0-03 | React/Vite/TypeScript/Tailwind y Fetch real preparados; instalación, build y prueba en navegador pendientes |
-| S0-04 | JDBC Supabase y ejemplos configurados; sin esquema ni credenciales; conexión pendiente |
-| S0-05 | Health público, otras rutas protegidas, BCrypt preparado y CSRF activo; sin login/usuarios |
-| S0-06 | .gitignore comprobado; raíz sin repositorio Git inicializado; sin commit/push/ramas remotas |
-| S0-07 | README, arquitectura, decisiones y este estado creados |
+## Criterios y estado final
 
-## Verificaciones realmente ejecutadas
+| Tarea | Estado | Evidencia / límite |
+|---|---|---|
+| S0-01 Estructura | Completada | Carpetas y archivos requeridos presentes; fuentes académicas conservadas |
+| S0-02 Backend | Completada con observación | Java 21, Spring Boot 3.5.16, Maven, perfiles, paquetes y health. BUILD SUCCESS reportado; seis tests repetidos con éxito; verify completo no repetido exitosamente |
+| S0-03 Frontend | Completada con observación | React/Vite/TypeScript/Tailwind, Fetch real y lockfile versionado. Build estándar y «API disponible» reportados; TypeScript y build alternativo comprobados |
+| S0-04 PostgreSQL | Completada para preparación | JDBC y variables configurados; IntelliJ/SELECT 1 exitosos reportados. Prueba del datasource Spring pendiente |
+| S0-05 Seguridad inicial | Completada | Health público, otras rutas protegidas, CORS y BCrypt comprobados; CSRF activo; roles documentados |
+| S0-06 Versionado | Completada | .gitignore comprobado, Git local/remoto presentes, referencias main/origin/main coinciden; primer push y privacidad reportados |
+| S0-07 Documentación | Completada | Arquitectura, decisiones, README y registros de estado/cierre disponibles |
 
-| Verificación | Resultado |
-|---|---|
-| Herramientas | Node 24.21.0, npm 11.19.0; JDK 23 y 26 localizados; Java 21 no localizado; Maven fuera de PATH, encontrado en IntelliJ |
-| Maven verify | Intentado con Maven incorporado y JDK 23, compilación configurada para release 21. Falló antes de compilar: Maven Central bloqueado (Permission denied: getsockopt), parent POM no resoluble |
-| Pruebas backend | Seis pruebas JUnit 5 creadas. No ejecutadas: verify no llegó a la fase test |
-| npm install | Falló por acceso a registry.npmjs.org (EACCES). No se completó instalación ni se generó package-lock.json |
-| npm run build | Ejecutado; falló porque tsc no está instalado |
-| npm run dev | Ejecutado; falló porque vite no está instalado |
-| GET local /api/health | Intentado; ECONNREFUSED, backend no activo. No se verificó una respuesta HTTP correcta |
-| Frontend local | Consulta a puerto 5173: ECONNREFUSED. Consumo React→API no verificado en ejecución |
-| Formato de archivos | XML del POM y JSON frontend parseados correctamente; no equivale a compilación |
-| .gitignore | git check-ignore en repositorio temporal dentro de .cache: ignora .env, node_modules, target, dist, IntelliJ, cachés y clave privada de ejemplo; .env.example conservados |
-| Secretos | Revisión de archivos creados sin secretos reales detectados; variables Supabase ausentes y sin .env real creado. No hay repositorio raíz para auditar archivos versionados/historial |
-| Fuentes originales | SHA-256 de ambas entregas PDF, superprompt, context/README y planificación coincide con el estado previo; ningún PDF/PPTX fue editado |
+## Resultados comprobados en auditoría
 
-Las pruebas preparadas verifican health público y JSON, protección de ruta futura, CORS local y preflight, rechazo de otro origen y BCrypt. Se ejecutan con perfil dev y servidor HTTP real en puerto aleatorio, sin Supabase.
+- Maven surefire:test offline mediante launcher IntelliJ y JDK Temurin 21.0.12.1: BUILD SUCCESS, 6 tests, 0 fallos, 0 errores, 0 omitidos. Usa clases compiladas existentes; no sustituye verify completo.
+- GET localhost:8080/api/health: 200 y JSON application=Comunitarias/status=UP. GET /api/pedidos sin autenticar: 401. No hay controlador comercial de pedidos.
+- CORS: origen localhost:5173 aceptado en GET/OPTIONS; origen externo rechazado con 403. BCrypt probado por JUnit.
+- npm run build llegó a Vite sin errores TypeScript, pero falló al cargar configuración por acceso denegado. node node_modules/vite/bin/vite.js build --configLoader runner pasó (código 0, 31 módulos). No se cambió configuración.
+- HTTP frontend localhost:5173: 200 y raíz React. Fetch real revisado en código; pantalla «API disponible» es evidencia del usuario, sin nueva observación visual del auditor.
+- Git: remoto mcirielli/Proyecto-Comunitarias, main...origin/main=0/0 según referencias locales; exclusiones correctas. No se encontraron rutas sensibles versionadas ni candidatos en revisión de patrones. No se auditó exhaustivamente historial ni se consultó GitHub.
 
-## Dependencias
+## Evidencias reportadas por el usuario
 
-Backend declaradas: starters Web, Data JPA, Security, Validation y Test (JUnit 5), driver PostgreSQL. Frontend declaradas: React/React DOM 19.3, Vite 7, TypeScript 5.9, Tailwind 4, plugins React/Tailwind y tipos. No se afirma instalación exitosa; falta resolver dependencias y conservar el lockfile resultante.
+Maven BUILD SUCCESS; seis tests sin fallos/errores; npm run build exitoso; health 200/UP; React muestra «API disponible»; IntelliJ conectado a Supabase y SELECT 1 exitoso; /api/pedidos devuelve 401; primer push exitoso a repositorio privado y main sincronizada. El auditor no repitió SELECT 1, verificación visual ni consulta remota GitHub. Las comprobaciones directas anteriores corroboran parte de esas evidencias.
 
-## Pendientes para cerrar Sprint 0
+## Errores y limitaciones conservados
 
-1. Seleccionar/instalar JDK 21 y configurar Maven; habilitar acceso a Maven Central y npm desde el entorno de desarrollo.
-2. Ejecutar mvn verify con Java 21 y corregir cualquier fallo real que aparezca; ejecutar npm install y npm run build, conservar package-lock.json.
-3. Arrancar ambos proyectos y verificar en navegador disponibilidad, rechazo de rutas protegidas y comportamiento al detener la API.
-4. Configurar credenciales propias de Supabase, iniciar solo perfil supabase y verificar JDBC/SELECT 1; no inferir conexión desde health.
-5. Validar con el docente el recorte de rentabilidad y reportes.
+La repetición de verify falló primero por repositorio local C:\.m2\repository no accesible. Reintentada con caché del usuario llegó a javac release 21, pero falló con «Cannot close compiler resources» y referencia a spring-boot-starter-tomcat-3.5.16.jar. Causa exacta sin resolver; no se presenta como verify exitoso. El entorno restringido también impidió la carga estándar de vite.config.ts; el loader alternativo sí funcionó. Consola estándar falló con helper_unknown_error; se utilizaron procesos Node.
 
-## Próximas tareas sugeridas para cuatro integrantes
+Git inicialmente rechazó dubious ownership por usuario sandbox; se usó safe.directory por comando, sin configuración global. Surefire emitió avisos Mockito/Byte Buddy por agente dinámico, class sharing y demora SecureRandom, sin fallos. El detalle de comandos, resultados y el registro original se conservan en [REPORTE_SPRINT_0.md](REPORTE_SPRINT_0.md).
 
-- Integrante 1: verificar backend en JDK 21 y las seis pruebas.
-- Integrante 2: verificar build y consumo real React/API; revisar accesibilidad y estados de error.
-- Integrante 3: configurar y comprobar Supabase sin crear esquema de negocio.
-- Integrante 4: revisar decisiones/documentación, exclusiones Git y validación docente del recorte.
+## Configuración aceptada
 
-Una vez cerradas estas verificaciones, presentar el siguiente sprint para autorización. No se inició Sprint 1 ni se implementaron entidades, repositorios de negocio, servicios funcionales, Strategy, State, compras, inventario, facturación, reportes o autenticación completa. Logs/cachés de verificaciones permanecen en .cache y están excluidos de Git.
+dev es perfil por defecto y excluye DataSource/JPA; supabase requiere las tres variables SUPABASE_JDBC_URL/DB_USER/DB_PASSWORD. No usar ambos perfiles juntos. Las variables no existen en el proceso del auditor; la conexión IntelliJ no acredita la conexión de Spring. ddl-auto=none y sql.init.mode=never: sin esquema automático. Health solo comprueba HTTP.
+
+Spring no carga .env automáticamente; usar variables del proceso/IntelliJ. VITE_API_BASE_URL es público y no debe contener secretos. CORS con orígenes locales explícitos; CSRF activo, BCrypt preparado; login/formLogin/HTTP Basic/logout no implementados como flujo funcional. CLIENTE, OPERACIONES y GERENCIA quedan documentados, sin permisos por rol todavía.
+
+## Pendientes trasladados y próximos pasos
+
+1. Conservar logs reproducibles de mvn verify y npm run build en el entorno normal con Java 21; investigar los errores de recursos si también aparecen allí.
+2. Verificar JDBC desde Spring con solo perfil supabase antes del trabajo de persistencia. Sin crear esquema ni credenciales versionadas.
+3. Registrar evidencia visual y comprobar error/reintento de React al detener API.
+4. Obtener validación docente del recorte de rentabilidad/reportes, aún pendiente.
+5. Presentar alcance y backlog del Sprint 1 para aprobación: integrante 1 backend/contratos/pruebas; 2 frontend/integración; 3 persistencia y modelo propuesto; 4 documentación, revisión académica y coordinación.
+
+No son faltantes de aceptación del Sprint 0 el login real, entidades, migraciones, módulos de negocio, Strategy, State ni pantallas operativas. Permanecen para etapas posteriores autorizadas. La preparación JDBC permitía dejar su verificación real pendiente según la autorización inicial. Las observaciones no justifican implementar módulos comerciales ni modificar decisiones aprobadas.
+
+## Cambios de cierre
+
+Solo se actualizan este documento y REPORTE_SPRINT_0.md. Código/configuraciones/decisiones y documentos académicos no modificados; sin commits/push. Las pruebas generan artefactos locales ignorados. El reporte conserva íntegramente el registro anterior como histórico; sus estados «pendiente/no cerrado» fueron sustituidos por este cierre, sin ocultar los errores de la ejecución inicial.
