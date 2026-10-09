@@ -142,7 +142,7 @@ RESTRICCIONES:
 
 \- No utilizar Kubernetes.
 
-\- No utilizar Docker.
+\- Utilizar Docker Compose para ejecutar backend y frontend en el entorno de desarrollo local del Sprint 1, manteniendo PostgreSQL administrado en Supabase. Esta decisión aprobada sustituye la restricción anterior de no utilizar Docker; se conserva el monolito por capas, sin microservicios ni componentes innecesarios.
 
 \- No introducir Redis ni mensajería.
 
