@@ -1,0 +1,2 @@
+/** Paquete reservado para service; sin funcionalidades de negocio en Sprint 0. */
+package ar.edu.uade.comunitarias.service;

@@ -1,0 +1,25 @@
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+!.env.*.example
+**/credentials*
+**/secrets*
+*.pem
+*.key
+*.p12
+*.jks
+# Dependencias y generados
+node_modules/
+target/
+dist/
+coverage/
+.cache/
+*.log
+*.tsbuildinfo
+# IDE y sistema
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
