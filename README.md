@@ -1,46 +1,56 @@
 # Comunitarias
 
-MVP académico UADE. Sprint 0 cerrado con observaciones; S1-01 incorpora Docker/Compose para infraestructura local. **S1-01: En progreso, pendiente de validación Docker en Windows.** No hay login funcional ni módulos comerciales. No se publicó en Render ni se hicieron commits/push en esta implementación.
+Proyecto académico de Proceso de Desarrollo de Software de UADE: gestión mayorista para kioscos con venta semanal/pedidos, Compra Quinteros y gestión/reportes. Equipo de cuatro; presentación **31 de octubre de 2026**. Monolito por capas, Java/POO y cinco patrones seleccionados: MVC, Repository, Service Layer, Strategy y State.
 
-## Ejecutar con Docker después de clonar
+## Empezar aquí
 
-Requisitos: acceso al repositorio privado, Git y Docker Desktop para Windows iniciado en modo **Linux containers**, con Docker Compose v2 (se recomienda 2.20 o superior). El equipo debe poder descargar imágenes oficiales, dependencias Maven/npm y paquetes Alpine. Para Docker no hace falta instalar Java, Maven, Node ni Nginx en el host.
+| Necesidad | Documento |
+|---|---|
+| Elegir tarea y ver estados por sprint | [Kanban por sprints](docs/KANBAN_SPRINTS.md) |
+| Saber qué falta y su respaldo académico | [MVP pendientes y trazabilidad](docs/MVP_PENDIENTES.md) |
+| Aprender flujo POO/UML/Spring/React/Git | [Guía de desarrollo](docs/GUIA_DESARROLLO.md) |
+| Ejecutar, probar y diagnosticar contenedores | [Guía Docker](docs/GUIA_DOCKER.md) |
+| Alcance único aprobado del Sprint 1 | [Planificación formal](docs/PLANIFICACION_SPRINT_1.md) |
+| Criterios, evidencias y DoD del Sprint 1 | [Documento operativo](docs/SPRINT_1.md) |
+| Arquitectura y decisiones | [Arquitectura S0](docs/ARQUITECTURA.md), [decisiones](docs/DECISIONES_ARQUITECTURA.md) |
+| Cierre de infraestructura inicial | [Sprint 0](docs/SPRINT_0.md), [reporte](docs/REPORTE_SPRINT_0.md) |
 
-Cuando estos cambios estén incorporados al repositorio por una acción autorizada, un compañero puede ejecutar en PowerShell:
+Leer también [instrucciones](AGENTS.md) y [contexto](context/SUPERPROMPT.md). [Planificación MVP original](docs/PLANIFICACION_MVP.md) es histórica: decisiones posteriores sustituyen login simulado, reportes amplios/calendario anterior. No restaurar recortes ni requisitos obsoletos a partir de ella.
+
+## Stack y requisitos
+
+Backend **Java 21, Spring Boot 3.5.16, Maven/JUnit 5**, Web, Data JPA, Security, Bean Validation y PostgreSQL Driver. Frontend **React, Vite, TypeScript, Tailwind CSS y Fetch**; versiones se conservan en package.json/lockfile. PostgreSQL administrado en **Supabase**, conexión desde Java por JDBC. Sin microservicios, PostgreSQL local ni nuevas dependencias.
+
+Para Docker: Git, acceso al repositorio privado, Docker Desktop con motor Linux/Compose v2, red para descargar dependencias/imágenes y puertos 8080/8081 libres. No exige Java/Node del host. Para IDE/nativo: JDK 21, Maven >=3.6.3 y Node >=22.12/npm; sin Maven Wrapper. Comandos y configuración IntelliJ en guía de desarrollo.
+
+## Quick Start Docker
+
+Desde PowerShell:
 
 ~~~powershell
 git clone https://github.com/mcirielli/Proyecto-Comunitarias.git
 cd Proyecto-Comunitarias
-docker version
-docker compose version
-docker compose config
-docker compose build --no-cache
-~~~
-
-Si el build falla, conservar el error y resolverlo antes de arrancar; no saltar pruebas. Luego:
-
-~~~powershell
-docker compose up -d
+docker compose config --quiet
+if ($LASTEXITCODE -ne 0) { throw 'Resolver la configuración antes de continuar' }
+docker compose up -d --build
+if ($LASTEXITCODE -ne 0) { throw 'Resolver build/arranque antes de continuar' }
 docker compose ps
-docker compose logs --tail=100 backend frontend
 ~~~
 
-Esperar a que ambos servicios aparezcan healthy. El frontend se crea después de que el backend supere su healthcheck; no tomar el retorno de up como prueba del circuito React.
+Esperar ambos healthy; abrir **http://localhost:8081**. Backend directo **http://localhost:8080/api/health**; health por Nginx **http://localhost:8081/api/health**. Pantalla técnica «API disponible», sin pantallas comerciales todavía.
 
-- Aplicación: **http://localhost:8081**.
-- API directa para diagnóstico: **http://localhost:8080/api/health**.
-- API por Nginx: **http://localhost:8081/api/health**.
-- Puertos internos: backend 8080 y frontend 80; puertos publicados solo en 127.0.0.1.
+Compose fija **solo dev**, excluye DataSource/JPA y funciona sin credenciales/Supabase ni .env; no ejecuta SQL. El navegador usa /api/health relativo, Nginx resuelve backend:8080 internamente. Host backend no es una URL de navegador. Para detener: docker compose down.
 
-El primer arranque con compose.yaml fija **solo dev**, incluso si la terminal tiene SPRING_PROFILES_ACTIVE=supabase. No requiere .env ni Supabase y no incluye PostgreSQL local. dev excluye DataSource/JPA. No se generan tablas ni se ejecuta SQL.
+## Estado real del MVP
 
-Si el 8080 ya está usado por el backend local, definir antes de up/build/config:
+- Sprint 0 cerrado **APROBADO CON OBSERVACIONES**. Errores y límites conservados en el reporte, sin ocultarlos.
+- **S1-01 En revisión final**: builds/Docker/healthy/proxy/SPA/UI/error-recuperación y revisión integrantes 3/4 aprobados según usuario. Controles iniciales de seguridad sin indicadores reportados; falta inspeccionar contenido de capas de las imágenes entregadas. Auditar todas las imágenes históricas no es requisito.
+- Implementado: infraestructura Spring/React y GET /api/health; filtros iniciales/CORS/BCrypt. Sin login funcional, entidades, SQL, maestros, oferta comercial, pedidos, compras, inventario, factura/pagos o reportes.
+- Supabase: conexión IntelliJ/SELECT 1 reportada; JDBC desde DataSource Spring **pendiente S1-02**. Health no consulta BD.
+- Render: **despliegue realizado según el usuario, con verificación funcional y configuración pendientes**. No se aportaron URL pública, servicio, rama ni variables configuradas. No se ejecutó despliegue en esta tarea documental.
+- Reportes aprobados solo totales ventas/compras; exclusión de rentabilidad y reportes ampliados **pendiente de validación docente**.
 
-~~~powershell
-$env:BACKEND_HOST_PORT = '8082'
-~~~
-
-La API directa pasa a http://localhost:8082/api/health; el proxy interno sigue usando backend:8080. FRONTEND_HOST_PORT permite cambiar 8081; cambiar también la URL usada en las comprobaciones. Los orígenes CORS del contenedor se adaptan a ese puerto. El servicio backend es un hostname **solo para Nginx/red Docker**, no para el navegador.
+Resultados reportados no se presentan como pruebas ejecutadas por el agente. La lectura actual de código confirma el alcance descrito; esta actualización no repite builds/JDBC ni implementa funcionalidades.
 
 ## Reconstruir, detener y revisar
 
@@ -64,133 +74,35 @@ Para una verificación desde cero usar build --no-cache. Cada Dockerfile constru
 
 Imágenes: maven:3.9.9-eclipse-temurin-21, eclipse-temurin:21.0.12.1_1-jre-alpine-3.23, node:24.21.0-alpine3.23 y nginx:1.30.5-alpine3.24. Los tags explícitos evitan latest pero no son digests inmutables; registrar los digests reales al verificar Docker. Backend ejecuta como usuario comunitarias sin privilegios; curl se incorpora solo para su healthcheck. Nginx usa wget disponible en Alpine para comprobar los archivos estáticos.
 
-Nginx conserva /api/ al enviar al backend, transmite Host con puerto y headers proxy, preserva estados 401/403 y no reemplaza errores API por HTML. El fallback SPA se aplica a rutas frontend. El resolver Docker permite volver a resolver backend tras recreación. Su funcionamiento en contenedores aún requiere prueba real.
+Nginx conserva /api/ al enviar al backend, transmite Host con puerto y headers proxy, preserva estados 401/403 y no reemplaza errores API por HTML. El fallback SPA se aplica a rutas frontend. El resolver Docker permite volver a resolver backend tras recreación. Su funcionamiento principal en contenedores fue validado según el usuario; las limitaciones de seguridad se registran en docs/SPRINT_1.md.
 
-## Checklist Windows para aceptar S1-01
 
-Estos comandos/casos son **pendientes**, no resultados de contenedores verificados por el agente:
+## Entornos y variables
 
-~~~powershell
-docker compose config
-docker compose build --no-cache
-docker compose up -d
-docker compose ps
-# Validar sintaxis Nginx después de construir
-docker compose exec frontend nginx -t
-# GET desde el backend y por proxy; ambos deben devolver 200 y JSON UP
-curl.exe -i http://localhost:8080/api/health
-curl.exe -i http://localhost:8081/api/health
-# Verificar que proxy conserva la protección; ambos deben devolver 401
-curl.exe -i http://localhost:8080/api/recurso-futuro
-curl.exe -i http://localhost:8081/api/recurso-futuro
-# Fallback SPA: 200 y HTML de React, no un error Nginx
-curl.exe -i http://localhost:8081/ruta-de-prueba-spa
-# Perfil de la primera prueba
-docker compose exec backend printenv SPRING_PROFILES_ACTIVE
-docker compose exec backend java -version
-~~~
+| Entorno | Frontend/backend | Base de datos y límites |
+|---|---|---|
+| IDE/nativo dev | Vite 5173 → Spring 8080 | HTTP sin DataSource; default API directa |
+| Compose dev | Nginx 8081 → backend:8080 | Sin BD; primer arranque existente |
+| Perfil supabase local | IDE o override compose.supabase.yaml | PostgreSQL remoto JDBC, requiere variables reales; verificación Spring pendiente |
+| Render | Diseño aprobado Static Site + Web Service Docker | Despliegue reportado; configuración concreta y conectividad por verificar; no asumir Compose |
 
-Abrir http://localhost:8081: debe verse «API disponible». En DevTools > Network comprobar petición **http://localhost:8081/api/health**, HTTP 200 y JSON application=Comunitarias/status=UP; no http://backend ni llamada directa al puerto 8080. Registrar captura y resultado.
-
-~~~powershell
-# Mantener frontend levantado y detener solo la API
-docker compose stop backend
-~~~
-
-En la pantalla, pulsar «Volver a comprobar»: debe mostrar «API no disponible»; Nginx puede devolver 502/504 cuando el upstream está caído. Después:
-
-~~~powershell
-docker compose start backend
-docker compose ps
-~~~
-
-Esperar backend healthy y repetir desde la pantalla: vuelve a disponible. Verificar también recreación completa mediante down/up y que el proxy recupera el upstream. El healthcheck frontend indica Nginx/estáticos, no disponibilidad de PostgreSQL ni garantía de API.
-
-Revisar que los contextos e imágenes no contienen .env/credenciales/artefactos del host. En la imagen runtime backend solo está app.jar, no fuentes ni target host; en frontend solo dist/config Nginx, no node_modules. Ejemplos de inspección sin imprimir entorno secreto:
-
-~~~powershell
-docker compose exec backend ls -la /app
-docker compose exec frontend ls -la /usr/share/nginx/html
-docker compose images
-~~~
-
-No compartir docker inspect/config del futuro perfil supabase sin sanitizar: puede revelar variables secretas. Completar builds/pruebas nativos indicados a continuación y registrar resultados antes de marcar S1-01 Terminada.
-
-## Ejecución nativa fuera de Docker
-
-Se conserva el comportamiento actual: Vite en localhost:5173 llama directamente a localhost:8080 por defecto. Docker no cambia fuentes React, propiedades Spring ni Spring Security. VITE_API_BASE_URL se fija a cadena vacía únicamente en el build Docker para que Fetch use /api/health relativo.
-
-Requisitos nativos: JDK 21 en JAVA_HOME/PATH, Maven >=3.6.3 (sin wrapper; IntelliJ puede usar el incorporado), Node >=22.12 (Node 24 recomendado), npm y acceso a registros.
-
-Terminal backend desde la raíz (detener contenedores o cambiar puertos si hay conflicto):
-
-~~~powershell
-cd backend
-mvn clean verify
-if ($LASTEXITCODE -ne 0) { throw 'Resolver el fallo de Maven antes de arrancar' }
-mvn spring-boot:run
-~~~
-
-Perfil dev por defecto. Para forzarlo si la terminal tenía otro perfil: definir $env:SPRING_PROFILES_ACTIVE = 'dev' antes de arrancar. En otra terminal desde raíz:
-
-~~~powershell
-cd frontend
-# Solo copiar si no existe una .env local; conservar valores propios
-if (!(Test-Path -LiteralPath .env)) { Copy-Item .env.example .env }
-npm.cmd ci
-if ($LASTEXITCODE -ne 0) { throw 'Resolver npm ci antes de compilar' }
-npm.cmd run build
-if ($LASTEXITCODE -ne 0) { throw 'Resolver el build antes de arrancar' }
-npm.cmd run dev
-~~~
-
-Abrir http://localhost:5173. Ejemplo frontend/.env: VITE_API_BASE_URL=http://localhost:8080. Fuera de Docker ese valor y el default siguen funcionando; una base vacía requiere un proxy del mismo origen y no debe copiarse a la configuración nativa sin prepararlo.
-
-## Variables y preparación futura Supabase
-
-| Variable | Uso |
+| Variable | Uso existente |
 |---|---|
-| SPRING_PROFILES_ACTIVE | compose.yaml fija dev; override explícito fija solo supabase; nativo dev por defecto |
-| SERVER_PORT | Backend interno 8080; default nativo 8080 |
-| BACKEND_HOST_PORT | Puerto publicado backend Compose, default 8080 |
-| FRONTEND_HOST_PORT | Puerto publicado Nginx Compose, default 8081 |
-| CORS_ALLOWED_ORIGINS | Nativo localhost/127.0.0.1:5173; Compose agrega su origen frontend |
-| SUPABASE_JDBC_URL | JDBC de Connect/Session Pooler, con SSL |
-| SUPABASE_DB_USER / SUPABASE_DB_PASSWORD | Credenciales propias, solo entorno de ejecución backend |
-| VITE_API_BASE_URL | Público; default nativo http://localhost:8080; build Docker vacío |
+| SPRING_PROFILES_ACTIVE | dev por defecto/fijo en Compose; override reemplaza por solo supabase |
+| SERVER_PORT | Puerto Spring, default 8080; compatibilidad PORT Render por verificar |
+| BACKEND_HOST_PORT / FRONTEND_HOST_PORT | Defaults 8080/8081, publicación loopback; permite resolver conflictos |
+| CORS_ALLOWED_ORIGINS | Lista explícita; local 5173 y Compose agrega puerto Nginx |
+| SUPABASE_JDBC_URL / SUPABASE_DB_USER / SUPABASE_DB_PASSWORD | Solo entorno backend perfil supabase; sin valores reales aquí |
+| VITE_API_BASE_URL | Público, nativo localhost:8080/default; build Docker vacío |
 
-La .env.example raíz conserva placeholders. Spring no carga .env automáticamente; Vite sí carga su .env local. Compose interpola variables, pero compose.yaml no transmite secretos Supabase en dev. Nunca poner credenciales en VITE_*, Dockerfiles, capas ni argumentos de build.
+Spring no carga .env automáticamente. Compose interpola y transmite solo lo declarado; Vite expone VITE_* en build. Nunca poner secretos en VITE_*, Git, build args, capas o logs compartidos. ddl-auto=none/sql.init.mode=never: esquema solo tras aprobación. Procedimiento seguro de override, ejecución nativa y resolución de problemas en las guías, sin cadenas JDBC completas.
 
-**S1-02 futura:** compose.supabase.yaml prepara un override sin nuevos servicios. No se activó en S1-01. Antes de usarlo, obtener variables propias del panel Connect y revisar la tarea JDBC; no inferir conexión desde health ni desde SELECT 1 en IntelliJ.
+## Colaboración y sincronización
 
-Ejemplo futuro en PowerShell, **no ejecutado ni necesario para la primera prueba**:
+[Repo Cirielli](https://github.com/mcirielli/Proyecto-Comunitarias) es el fork; [repo Andrés](https://github.com/acedenosanchez/Proyecto-Comunitarias) es upstream en la configuración local comprobada. Cada compañero revisa git remote -v y permisos propios. Usuario confirmó push, [PR #1](https://github.com/acedenosanchez/Proyecto-Comunitarias/pull/1) y merge; log local **65cd3c1** registra ese merge. Estado remoto actual no comprobado en esta ejecución.
 
-~~~powershell
-$env:SUPABASE_JDBC_URL = Read-Host 'JDBC de Session Pooler con sslmode=require'
-$env:SUPABASE_DB_USER = Read-Host 'Usuario de base de datos'
-$clave = Read-Host 'Contraseña de base de datos' -AsSecureString
-$env:SUPABASE_DB_PASSWORD = [System.Net.NetworkCredential]::new('', $clave).Password
-# Eliminar contenedores dev antes de cambiar de configuración
-docker compose down
-# Validar sin imprimir secretos; variables vacías hacen fallar el override
-docker compose -f compose.yaml -f compose.supabase.yaml config --quiet
-docker compose -f compose.yaml -f compose.supabase.yaml up -d
-~~~
+Trabajar en feature/... o docs/..., realizar commit de rutas revisadas, push al fork y PR con base/head correctos; solicitar revisión cruzada, tests y DoD antes de merge. No push directo a Andrés ni force push. [Flujo completo Git/PR/sincronización](docs/GUIA_DESARROLLO.md). Para documentación y Render usar [skip render] según guía oficial si corresponde; verificar rama/auto-deploy antes de publicar. No activar despliegues desde estas instrucciones.
 
-El override **sustituye** dev por supabase; no combinar perfiles. Mantiene ddl-auto=none y sql.init.mode=never y no crea esquema. El éxito JDBC requiere prueba desde DataSource Spring/SELECT 1 en S1-02. Para volver a dev: down con ambos archivos y up con compose.yaml solo; el primer Compose vuelve a fijar dev. Al finalizar retirar variables de la terminal:
+## Datos Render por completar (S1-09)
 
-~~~powershell
-Remove-Item Env:SUPABASE_DB_PASSWORD -ErrorAction SilentlyContinue
-Remove-Item Env:SUPABASE_DB_USER -ErrorAction SilentlyContinue
-Remove-Item Env:SUPABASE_JDBC_URL -ErrorAction SilentlyContinue
-~~~
-
-## Estado de verificación y seguridad
-
-En el entorno del agente Docker no está disponible: docker compose config falló ENOENT; build/up/ps/Nginx/proxy/navegador Docker no se ejecutaron. npm ci limpio falló EACCES contra npm; build estándar llegó a Vite y falló por acceso denegado al cargar configuración. Build Vite alternativo con loader runner y base vacía sí pasó usando dependencias existentes del host; no equivale a build Docker o instalación limpia. Maven clean verify fue intentado con Java 21 y falló por recursos/permisos; se mantienen errores y detalles en [SPRINT_1.md](docs/SPRINT_1.md).
-
-Solo GET /api/health es público; rutas futuras protegidas, BCrypt preparado y CSRF activo. No se modificó Spring Security para Docker. Las seis pruebas existentes se repitieron mediante surefire:test con Java 21: 6 ejecutadas, 0 fallos, 0 errores, 0 omitidas, usando clases compiladas existentes; no acreditan clean verify ni imagen Docker.
-
-La conexión Supabase desde IntelliJ/SELECT 1 y el primer push fueron reportados en el cierre S0; la conexión Spring permanece pendiente de S1-02. Git local ya existe. No hacer commits/push/publicación automáticamente. Gitignore mantiene fuera entornos/dependencias/generados y los contextos Docker son mínimos.
-
-Documentación: [Arquitectura](docs/ARQUITECTURA.md), [Decisiones](docs/DECISIONES_ARQUITECTURA.md), [Sprint 1 operativo](docs/SPRINT_1.md), [Planificación vigente](docs/PLANIFICACION_SPRINT_1.md), [Cierre Sprint 0](docs/SPRINT_0.md). Preparar Render está aprobado para S1-09; publicar no. Rentabilidad excluida, pendiente de validación docente.
+URL frontend: pendiente. URL backend: pendiente. Nombre/tipo real de servicios: pendiente. Repo/rama/SHA desplegado: pendiente. Contexto Docker/build/dist/PORT/perfil/CORS: pendiente de verificar. Nombres de variables configuradas: pendiente, sin valores sensibles. Auto-deploy, cookies/CSRF/JDBC y smoke tests: pendientes. Checklist y alcance en Kanban; no se afirma que la configuración diseñada sea la realmente desplegada.
