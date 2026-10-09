@@ -1,0 +1,28 @@
+# Contexto mínimo: fuentes y lockfile; sin dependencias/build/entorno del host.
+**
+!Dockerfile
+!.dockerignore
+!package.json
+!package-lock.json
+!index.html
+!tsconfig*.json
+!vite.config.ts
+!nginx.conf
+!src/
+!src/**
+# Excluir secretos incluso dentro de src.
+**/.env
+**/.env.*
+**/credentials*
+**/secrets*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.jks
+**/.git
+**/.idea
+**/node_modules
+**/target
+**/dist
+**/*.log
+**/*.tsbuildinfo

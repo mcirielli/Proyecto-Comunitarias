@@ -1,0 +1,22 @@
+# Contexto mínimo: solo Maven y fuentes/pruebas. No copiar target del host.
+**
+!Dockerfile
+!.dockerignore
+!pom.xml
+!src/
+!src/**
+# Excluir secretos incluso si alguien los ubica dentro de src.
+**/.env
+**/.env.*
+**/credentials*
+**/secrets*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.jks
+**/.git
+**/.idea
+**/node_modules
+**/target
+**/dist
+**/*.log
