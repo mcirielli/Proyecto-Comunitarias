@@ -1,5 +1,9 @@
 # Demo local del primer circuito funcional
 
+Oferta semanal ya permite crear borrador, publicar y continuar a Pedidos con
+la oferta elegida. Ver [recorrido C05](OFERTAS_SEMANALES.md). El incremento usa
+la misma sesión demo y base Supabase; no requiere migración.
+
 Actualización: ya está disponible el incremento de Pedidos + State; ver
 [recorrido de pedido y patrón](PEDIDO_STATE.md). La vista Pedidos admite alta,
 consulta y transiciones. Reservas/stock y Strategy permanecen pendientes.
@@ -50,6 +54,6 @@ Repetir el mismo estado es idempotente. No hay borrado físico.
 
 La pantalla solo muestra éxito tras respuesta real del backend y recarga por GET.
 Ante error de recarga, volver a consultar antes de repetir un alta.
-Este circuito demuestra MVC, Repository y Service Layer; no demuestra todavía
-venta semanal, State, Strategy, inventario o facturación. Las pantallas propias
-de Cliente y Gerencia quedan para los siguientes incrementos.
+El recorrido de maestros demuestra MVC, Repository y Service Layer. Los módulos
+de Ofertas y Pedidos amplían la venta semanal y demuestran State. Strategy,
+inventario, facturación y reportes gerenciales siguen pendientes de sus frentes.

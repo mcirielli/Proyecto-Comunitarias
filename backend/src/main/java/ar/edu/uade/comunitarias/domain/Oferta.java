@@ -12,6 +12,14 @@ public class Oferta {
     @OneToMany(mappedBy="oferta", cascade=CascadeType.ALL) private List<DetalleOferta> detalles=new ArrayList<>();
     protected Oferta() {}
     public Oferta(String titulo, LocalDate inicio, LocalDate fin) { this.titulo=titulo; fechaInicio=inicio; fechaFin=fin; publicada=true; }
+    /** El constructor anterior conserva el contrato de fixtures y pedidos existentes. */
+    public static Oferta borrador(String titulo, LocalDate inicio, LocalDate fin) {
+        var oferta = new Oferta(titulo, inicio, fin);
+        oferta.publicada = false;
+        return oferta;
+    }
+    public boolean isPublicada() { return publicada; }
+    public void publicar() { publicada = true; }
     public void agregar(Producto producto, java.math.BigDecimal precio) { detalles.add(new DetalleOferta(this,producto,precio)); }
     public boolean vigente(LocalDate fecha) { return publicada && !fecha.isBefore(fechaInicio) && !fecha.isAfter(fechaFin); }
     public Long getId() { return id; }

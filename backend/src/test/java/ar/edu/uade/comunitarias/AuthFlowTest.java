@@ -142,4 +142,23 @@ class AuthFlowTest {
         assertEquals(400,compraPost("/api/compras/quinteros",body,csrf()).statusCode());
         verifyNoInteractions(compras);
     }
+
+    @Test void ofertasRespetanRolesCsrfYContratoComercial() throws Exception {
+        assertEquals(401,get("/api/ofertas").statusCode());
+        account("CLIENTE",true,true); assertEquals(200,login(csrf()).statusCode());
+        assertEquals(200,get("/api/ofertas").statusCode());
+        assertEquals(403,post("/api/ofertas/1/publicacion","",csrf()).statusCode());
+        assertEquals(403,post("/api/ofertas","",csrf()).statusCode());
+        assertEquals(403,get("/api/ofertas/1").statusCode());
+        post("/api/auth/logout","",csrf());
+        account("GERENCIA",true,true); assertEquals(200,login(csrf()).statusCode());
+        assertEquals(403,get("/api/ofertas").statusCode());
+        assertEquals(403,post("/api/ofertas/1/publicacion","",csrf()).statusCode());
+        post("/api/auth/logout","",csrf());
+        account("OPERACIONES",true,true); assertEquals(200,login(csrf()).statusCode());
+        assertEquals(200,get("/api/ofertas").statusCode());
+        assertEquals(403,post("/api/ofertas/1/publicacion","",null).statusCode());
+        assertEquals(403,post("/api/ofertas","",null).statusCode());
+        verify(ofertas,never()).buscarParaPublicar(any());
+    }
 }

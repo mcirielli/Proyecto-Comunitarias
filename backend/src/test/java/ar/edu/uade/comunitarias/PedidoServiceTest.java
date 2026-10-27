@@ -67,4 +67,17 @@ class PedidoServiceTest {
         assertThrows(TransicionInvalidaException.class,() -> service.cambiarEstado(4L,EstadoPedido.ENTREGADO));
         assertEquals(EstadoPedido.RECIBIDO,pedido.getEstado());verify(pedidos,never()).saveAndFlush(any());
     }
+
+    @Test void ofertaFuturaYBorradorNoPermitenPedido() {
+        ReflectionTestUtils.setField(oferta,"fechaInicio",LocalDate.of(2026,10,28));
+        assertThrows(ReglaNegocioException.class,() -> service.crear(request(1L,1),ops));
+        ReflectionTestUtils.setField(oferta,"fechaInicio",LocalDate.of(2026,10,27));
+        ReflectionTestUtils.setField(oferta,"publicada",false);
+        assertThrows(ReglaNegocioException.class,() -> service.crear(request(1L,1),ops));
+        verifyNoInteractions(pedidos);
+    }
+    @Test void pedidoAceptaAmbasFechasLimiteInclusivas() {
+        ReflectionTestUtils.setField(oferta,"fechaFin",LocalDate.of(2026,10,27));
+        assertEquals(new BigDecimal("19.90"),service.crear(request(1L,1),ops).total());
+    }
 }
