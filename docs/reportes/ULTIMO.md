@@ -1,3 +1,6 @@
 # Último reporte cerrado
 
-[Pedido + State con persistencia real — 27 de octubre de 2026](2026-10-27-pedido-state.md)
+[Compras + Strategy: incremento preparado, integración pendiente — 27 de octubre de 2026](2026-10-27-compras-strategy.md)
+
+Último incremento funcional con BD cerrado:
+[Pedido + State](2026-10-27-pedido-state.md).

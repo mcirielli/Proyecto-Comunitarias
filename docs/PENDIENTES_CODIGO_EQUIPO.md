@@ -1,6 +1,10 @@
 # Código pendiente y reparto del equipo
 
 Actualizado: 27/10/2026, después de Pedido + State.
+Avance C01 en `andy`: código Strategy/API/React y pruebas preparados; reglas
+CMP-01 a CMP-11 aprobadas en [COMPRAS_REGLAS_NEGOCIO.md](COMPRAS_REGLAS_NEGOCIO.md).
+Migración 002 solo propuesta, no aplicada; módulo deshabilitado por defecto y PR
+borrador hasta verificar persistencia/HTTP con BD. Ver [COMPRAS_STRATEGY.md](COMPRAS_STRATEGY.md).
 Prioridad académica: cinco patrones reales, con pruebas y explicación.
 La prioridad indica orden de trabajo; no elimina compromisos del MVP.
 

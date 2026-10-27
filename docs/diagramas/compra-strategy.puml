@@ -1,0 +1,57 @@
+@startuml
+title Compras: Strategy y coordinación transaccional
+interface CompraStrategy {
+  +calcular(ContextoCompra): Map<Long,Integer>
+}
+class CompraPorDemandaStrategy
+class CompraQuinterosStrategy
+class ContextoCompra {
+  pedidos
+  productos
+  disponible
+  comprasAbiertas
+}
+class CompraService {
+  estrategias: Map<TipoCompra,CompraStrategy>
+  +crear(tipo,request,actor)
+  +autorizar(id,actor)
+  +emitir(id,actor)
+}
+class CompraController
+class ComprasPage <<React>>
+class OrdenCompra {
+  estado
+  autorizadaPor
+  fechaAutorizacion
+  +autorizar(actor,fecha)
+  +emitir(actor,fecha)
+}
+class DetalleOrdenCompra {
+  cantidad
+  precioUnitario: BigDecimal
+}
+class CoberturaCompra
+interface OrdenCompraRepository
+interface CoberturaCompraRepository
+interface CompraAbastecimientoRepository
+interface ProductoProveedorRepository
+interface StockAbastecimientoRepository
+CompraPorDemandaStrategy ..|> CompraStrategy
+CompraQuinterosStrategy ..|> CompraStrategy
+CompraStrategy ..> ContextoCompra
+CompraService o--> CompraStrategy : selecciona y ejecuta
+ComprasPage --> CompraController : HTTP + sesión/CSRF
+CompraController --> CompraService
+CompraService --> OrdenCompraRepository
+CompraService --> CoberturaCompraRepository
+CompraService --> CompraAbastecimientoRepository
+CompraService --> ProductoProveedorRepository
+CompraService --> StockAbastecimientoRepository
+OrdenCompra "1" *-- "1..*" DetalleOrdenCompra
+CoberturaCompra --> "0..1" OrdenCompra
+note bottom of CoberturaCompra
+Pedidos únicos, UUID y asignaciones durables.
+No reserva ni mueve inventario.
+Migración propuesta sin aplicar.
+end note
+@enduml

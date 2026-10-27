@@ -1,5 +1,20 @@
 # Decisiones de arquitectura
 
+## Compras + Strategy — 27/10/2026
+
+Usuario autorizó implementar C01 de punta a punta y aprobó expresamente el
+contrato de stock libre, demanda CONFIRMADO, proveedor explícito, órdenes abiertas
+y autorización/emisión Quinteros por roles separados. También aprobó cobertura
+persistida para evitar reutilización entre grupos, con límite de demo sin liberar
+asignaciones hasta integrar inventario. Reglas con IDs CMP-01 a CMP-11 en
+[COMPRAS_REGLAS_NEGOCIO.md](COMPRAS_REGLAS_NEGOCIO.md); participantes/API y activación
+en [COMPRAS_STRATEGY.md](COMPRAS_STRATEGY.md).
+
+Autorización de esquema: **solo preparar** propuesta 002; no aplicarla.
+El módulo queda apagado por defecto hasta completar esa dependencia. No se
+modifican State, ofertas, reservas/movimientos ni precios de proveedores. Se
+conservan sesiones/CSRF y separación Gerencia/Operaciones, sin dependencias nuevas.
+
 ## Prioridad académica Pedido + State — 27/10/2026
 
 El usuario priorizó los patrones y autorizó iniciar Pedido + State para avanzar
