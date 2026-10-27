@@ -1,5 +1,17 @@
 # Decisiones de arquitectura
 
+## Demo local autorizada — 27/10/2026
+
+El usuario autorizó mantener una cuenta local por rol para acelerar el MVP de
+facultad. Para esta demo se sustituye la provisión de usuarios persistidos por
+tres cuentas ficticias en memoria, habilitadas explícitamente por compose.demo.yaml.
+Se conserva BCrypt en memoria, sesión y CSRF; no se modifica Supabase ni se aplica
+password_hash. Producto/proveedor siguen persistiendo en la BD real. Los IDs de
+identidad demo son negativos y no equivalen a clientes persistidos.
+Se autoriza el circuito visible de alta/consulta y activación/desactivación de
+maestros; no implica que estén implementados pedidos, compras o los cinco patrones.
+Credenciales y recorrido: DEMO_LOCAL.md. El modo no se destina a publicación.
+
 Autorización del Sprint 0; registro del 9 de octubre de 2026. Las entregas académicas son la referencia funcional principal. Las siguientes decisiones fueron aprobadas expresamente por el usuario y prevalecen sobre propuestas previas. Su registro no implica implementación funcional en Sprint 0.
 
 | Decisión aprobada | Alcance |

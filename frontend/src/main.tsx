@@ -1,8 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { HomePage } from './pages/HomePage'
+import { OperacionesPage } from './pages/OperacionesPage'
+import { initializeTheme } from './components/ThemeToggle'
 import './index.css'
 
+initializeTheme()
+
 createRoot(document.getElementById('root')!).render(
-  <StrictMode><HomePage /></StrictMode>,
+  <StrictMode><OperacionesPage /></StrictMode>,
 )

@@ -4,6 +4,19 @@ Proyecto académico de Proceso de Desarrollo de Software de UADE: gestión mayor
 
 ## Empezar aquí
 
+**Demo actual:** login local por rol, productos/proveedores persistidos en Supabase,
+alta/consulta/activación y vistas separadas con temas claro/oscuro. Ver
+[recorrido y cuentas ficticias](docs/DEMO_LOCAL.md) y [último reporte](docs/reportes/ULTIMO.md).
+Preparar `.env` local desde `.env.example` y arrancar con:
+
+```powershell
+docker compose -f compose.yaml -f compose.supabase.yaml -f compose.demo.yaml up -d --build
+```
+
+Abrir http://localhost:8081. No versionar `.env`, tokens ni credenciales Supabase.
+El modo demo es exclusivamente local; sus cuentas públicas no dan acceso al panel
+o a las API de Supabase. Oferta, pedidos/State y compras/Strategy siguen pendientes.
+
 | Necesidad | Documento |
 |---|---|
 | Elegir tarea y ver estados por sprint | [Kanban por sprints](docs/KANBAN_SPRINTS.md) |

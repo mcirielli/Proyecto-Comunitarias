@@ -4,9 +4,9 @@ const labels: Record<ApiState, string> = {
   checking: 'Comprobando API…', available: 'API disponible', unavailable: 'API no disponible',
 }
 const colors: Record<ApiState, string> = {
-  checking: 'bg-slate-100 text-slate-700',
-  available: 'bg-emerald-100 text-emerald-800',
-  unavailable: 'bg-rose-100 text-rose-800',
+  checking: 'status-checking',
+  available: 'status-available',
+  unavailable: 'status-unavailable',
 }
 
 export function ApiStatus({ state }: { state: ApiState }) {

@@ -1,9 +1,7 @@
-# Preparación futura de S1-02. No se usa en el primer arranque de S1-01.
-# Aplicar solo explícitamente: docker compose -f compose.yaml -f compose.supabase.yaml ...
+# Aplicar junto con compose.yaml; las credenciales se toman del entorno o .env.
 services:
   backend:
     environment:
-      # Sustituye dev; no combinar ambos perfiles.
       SPRING_PROFILES_ACTIVE: supabase
       SUPABASE_JDBC_URL: ${SUPABASE_JDBC_URL:?Definir SUPABASE_JDBC_URL con SSL}
       SUPABASE_DB_USER: ${SUPABASE_DB_USER:?Definir SUPABASE_DB_USER}

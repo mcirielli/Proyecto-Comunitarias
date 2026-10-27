@@ -23,3 +23,7 @@ coverage/
 .vscode/
 .DS_Store
 Thumbs.db
+# Copias de conflictos de sincronización y herramientas locales
+*-Andres-PC*
+.codex/
+tmp/

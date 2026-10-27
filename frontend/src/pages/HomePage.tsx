@@ -25,19 +25,19 @@ export function HomePage() {
     return () => { active = false; window.clearTimeout(timeout); controller.abort() }
   }, [attempt])
 
-  return <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-12">
-    <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-emerald-700">Proyecto UADE</p>
+  return <main className="mx-auto flex max-w-3xl flex-col px-6 py-12">
+    <p className="mb-3 text-sm font-semibold uppercase tracking-widest accent">Proyecto UADE</p>
     <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Comunitarias</h1>
-    <p className="mt-4 text-lg text-slate-600">Una gestión mayorista más organizada.</p>
-    <section aria-labelledby="connection-title" className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <p className="mt-4 text-lg muted">Una gestión mayorista más organizada.</p>
+    <details className="connection-details"><summary>Estado de conexión</summary><section aria-labelledby="connection-title" className="surface mt-4 rounded-xl p-5">
       <h2 id="connection-title" className="mb-4 text-xl font-semibold">Estado de conexión</h2>
       <ApiStatus state={state} />
-      {error && <p className="mt-3 text-sm text-rose-700">{error}</p>}
-      <p className="mt-4 text-sm text-slate-600">Estamos preparando la plataforma. Las funciones comerciales se incorporarán en próximas etapas.</p>
+      {error && <p className="mt-3 text-sm error-text">{error}</p>}
+      <p className="mt-4 text-sm muted">Este indicador comprueba la disponibilidad HTTP de la API.</p>
       <button type="button" disabled={state === 'checking'} onClick={() => setAttempt(value => value + 1)}
-        className="mt-6 rounded-lg bg-emerald-700 px-4 py-2 font-medium text-white hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 disabled:opacity-50">
+        className="action mt-4">
         Volver a comprobar
       </button>
-    </section>
+    </section></details>
   </main>
 }
