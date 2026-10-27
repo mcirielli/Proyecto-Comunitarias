@@ -1,5 +1,15 @@
 # Decisiones de arquitectura
 
+## Oferta semanal C05 — 27/10/2026
+
+Usuario autorizó gestión/publicación end-to-end, commit/push a tino y PR a main,
+sin fusionar. Aprobó explícitamente conservar las publicadas sin edición en este
+incremento (cambios mediante otro borrador); productos desactivados posteriormente
+se ocultan al Cliente y no pueden pedirse, sin alterar pedidos históricos.
+Se conserva el esquema existente y PedidoService/State, sin DDL ni dependencias.
+Precio cero sigue permitido; límites numeric(12,2) se verificaron en Supabase.
+Reglas, API y recorrido: [OFERTAS_SEMANALES.md](OFERTAS_SEMANALES.md).
+
 ## Prioridad académica Pedido + State — 27/10/2026
 
 El usuario priorizó los patrones y autorizó iniciar Pedido + State para avanzar

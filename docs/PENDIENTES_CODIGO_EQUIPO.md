@@ -14,10 +14,12 @@ La prioridad indica orden de trabajo; no elimina compromisos del MVP.
 - State real: interfaz, seis clases, contexto Pedido y reconstrucción persistida.
 - Fixtures explícitos y separados de cliente/oferta para la demo.
 - React: login, resumen, maestros y pedidos; navegación por rol y ambos temas.
-- Última verificación: 72 pruebas estándar y 6 de integración Supabase aprobadas.
+- Última verificación: 85 pruebas estándar y 10 de integración Supabase aprobadas (C05).
 
 El catálogo de tablas en Supabase no sustituye los servicios/reglas aún ausentes.
-La oferta actual se lee para crear pedidos; todavía no existe su gestión completa.
+Oferta semanal C05: alta de borrador, publicación y catálogo por rol implementados;
+selección explícita hacia Pedidos. Sin edición de publicadas, según aprobación.
+Reglas y demo: [OFERTAS_SEMANALES.md](OFERTAS_SEMANALES.md).
 Los cambios de estado todavía no reservan, descuentan ni comprueban inventario.
 
 ## Backlog de implementación
@@ -28,7 +30,7 @@ Los cambios de estado todavía no reservan, descuentan ni comprueban inventario.
 | C02 / P0 | Stock, reservas y vínculo con State | domain/Stock, MovimientoStock; repositorios; service/StockService; integrar PedidoService; DTO/controller y StockPage | Disponible/reservado coherentes; reserva automática en momento acordado; egreso una sola vez; impide preparar sin stock; bloqueos/transacciones y pruebas concurrentes | Acordar significado de cantidades y momento de reserva/liberación |
 | C03 / P0 | Recepción de compras | RecepcionService o caso de uso acotado de compras/inventario; repositorios de C01/C02; API y vista de recepción | Recibir orden ingresa stock y movimiento atómicamente; repetir no duplica; parciales/excedentes según regla revisada | C01/C02; dueño de integración definido abajo |
 | C04 / P1 | Producto-proveedor e historial de precios | domain/ProductoProveedor e historial; repositorios; PrecioProveedorService; API/DTO y vista de vínculo/precios; migración solo aprobada | Producto mantiene ID con varios proveedores; código/condiciones por vínculo; nuevo precio conserva anterior; consulta actual/histórica | Revisar extensión del esquema: precio_compra actual no guarda historia |
-| C05 / P1 | Gestión y consulta de oferta semanal | Extender Oferta/OfertaRepository; OfertaService, DTO/controller; OfertaPage para Cliente y gestión Operaciones | Armar/publicar con fechas/precio de venta; Cliente solo ve ofertas publicadas vigentes sin costos; se reutilizan entidades existentes; fuera de vigencia no permite pedido | Productos existentes; política de edición de oferta publicada |
+| C05 / P1 | Gestión y consulta de oferta semanal implementada; revisión PR pendiente | Extender Oferta/OfertaRepository; OfertaService, DTO/controller; OfertaPage para Cliente y gestión Operaciones | Armar/publicar con fechas/precio de venta; Cliente solo ve ofertas publicadas vigentes sin costos; se reutilizan entidades existentes; fuera de vigencia no permite pedido | Productos existentes; política aprobada documentada en OFERTAS_SEMANALES.md |
 | C06 / P1 | Factura interna y pagos | domain/Factura, Pago; repositorios; FacturacionService/PagoService; DTO/controller y vistas | Solo factura pedido entregado; una factura por pedido; importe calculado desde detalles históricos; pagos/saldo válidos; transacciones y roles | Pedido/State existentes; política de pagos/numeración |
 | C07 / P1 | Resumen gerencial de ventas/compras | ReporteService, consultas de repositorio y DTO/controller; ReportesPage | Totales reales por período, reconciliados con factura/orden; no confundir pago con venta | C01/C06; acordar base de cálculo |
 | C08 / P0 transversal | Pruebas, integración y defensa | Tests por módulo; docs/diagramas; contratos API; guía demo | State y Strategy explicables, tests de reglas y permisos, flujo completo con BD, UML coincide con clases, ejecución limpia y demo de 5 min | Durante cada tarea; cierre después de integración |

@@ -15,21 +15,21 @@ function EstadoActions({ pedido, busy, onChange }: { pedido: Pedido; busy: boole
   return <div className="state-controls"><label>Destino<select className="field" value={destino} onChange={event => setDestino(event.target.value)}>{estados.map(estado => <option key={estado} value={estado}>{label(estado)}</option>)}</select></label><button className="action" disabled={busy} onClick={() => onChange(pedido.id, destino)}>Cambiar estado</button></div>
 }
 
-export function PedidosPage({ operaciones }: { operaciones: boolean }) {
+export function PedidosPage({ operaciones, ofertaInicial }: { operaciones: boolean; ofertaInicial?: number }) {
   const [contexto, setContexto] = useState<Contexto | null>(null)
   const [pedidos, setPedidos] = useState<Pedido[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
-  const [creating, setCreating] = useState(false)
+  const [creating, setCreating] = useState(!!ofertaInicial)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [attempt, setAttempt] = useState(0)
-  const [ofertaId, setOfertaId] = useState('')
+  const [ofertaId, setOfertaId] = useState(String(ofertaInicial ?? ''))
   const [cantidades, setCantidades] = useState<Record<string, number>>({})
   useEffect(() => {
     let active = true; setLoading(true)
     Promise.all([api('/pedidos/contexto'), api('/pedidos')]).then(([ctx, rows]) => {
-      if (active) { setContexto(ctx); setPedidos(rows); setOfertaId(previous => ctx.ofertas.some((o: { id: number }) => String(o.id) === previous) ? previous : String(ctx.ofertas[0]?.id ?? '')) }
+      if (active) { setContexto(ctx); setPedidos(rows); setOfertaId(previous => ctx.ofertas.some((o: { id: number }) => String(o.id) === previous) ? previous : '') }
     }).catch((reason: Error) => { if (active) setError(reason.message) })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
@@ -66,7 +66,7 @@ export function PedidosPage({ operaciones }: { operaciones: boolean }) {
     {!loading && contexto?.ofertas.length === 0 && <p className="notice muted">No hay ofertas publicadas vigentes. {operaciones ? 'Podés preparar datos de ejemplo para la demostración.' : 'Consultá a Operaciones.'}</p>}
     {creating && contexto && <section className="surface form-panel"><h2>Nuevo pedido</h2><form onSubmit={crear}>
       {operaciones && <label>Cliente<select className="field" name="clienteId" required defaultValue=""><option value="" disabled>Seleccionar cliente</option>{contexto.clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select></label>}
-      <label>Oferta<select className="field" value={ofertaId} onChange={event => {setOfertaId(event.target.value); setCantidades({})}} required>{contexto.ofertas.map(o => <option key={o.id} value={o.id}>{o.titulo} · {o.fechaInicio} al {o.fechaFin}</option>)}</select></label>
+      <label>Oferta<select className="field" value={ofertaId} onChange={event => {setOfertaId(event.target.value); setCantidades({})}} required><option value="">Seleccionar oferta</option>{contexto.ofertas.map(o => <option key={o.id} value={o.id}>{o.titulo} · {o.fechaInicio} al {o.fechaFin}</option>)}</select></label>
       <p className="muted mb-4">Los precios corresponden a la oferta y quedan guardados al registrar el pedido.</p>
       <div className="order-products">{oferta?.productos.map(producto => <label key={producto.id} className="order-product"><span>{producto.nombre}<small className="muted">{money(producto.precio)}</small></span><input className="field" aria-label={'Cantidad de ' + producto.nombre} type="number" min="0" max="2147483647" step="1" value={cantidades[producto.id] ?? 0} onChange={event => setCantidades(previous => ({...previous, [producto.id]: Number(event.target.value)}))} /></label>)}</div>
       <button className="action mt-5" disabled={busy || !oferta?.productos.length}>{busy ? 'Registrando…' : 'Registrar pedido'}</button>
