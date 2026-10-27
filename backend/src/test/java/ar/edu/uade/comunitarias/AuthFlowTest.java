@@ -21,6 +21,9 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("supabase")
 class AuthFlowTest {
     @MockBean UsuarioRepository usuarios;
+    @MockBean ClienteRepository clientes;
+    @MockBean OfertaRepository ofertas;
+    @MockBean PedidoRepository pedidos;
     @MockBean ProductoRepository productos;
     @MockBean ProveedorRepository proveedores;
     @Autowired PasswordEncoder encoder;
@@ -93,5 +96,14 @@ class AuthFlowTest {
     @Test void managerDoesNotInheritOperations() throws Exception {
         account("GERENCIA",true,true); assertEquals(200,login(csrf()).statusCode());
         assertEquals(403,get("/api/proveedores").statusCode()); verifyNoInteractions(proveedores);
+        assertEquals(403,get("/api/pedidos").statusCode());
+    }
+    @Test void clienteNoPuedeCambiarEstadoAunqueTengaCsrf() throws Exception {
+        account("CLIENTE",true,true); assertEquals(200,login(csrf()).statusCode());
+        var request=HttpRequest.newBuilder(URI.create("http://localhost:"+port+"/api/pedidos/1/estado"))
+                .header("Content-Type","application/json").header("X-CSRF-TOKEN",csrf())
+                .method("PATCH",HttpRequest.BodyPublishers.ofString("{\"estado\":\"ENTREGADO\"}")).build();
+        assertEquals(403,client.send(request,HttpResponse.BodyHandlers.ofString()).statusCode());
+        verifyNoInteractions(pedidos);
     }
 }

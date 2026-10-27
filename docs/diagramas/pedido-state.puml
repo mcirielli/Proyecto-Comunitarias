@@ -1,0 +1,45 @@
+@startuml
+title Comunitarias - Pedido y State
+hide empty members
+class Pedido {
+  - estado: EstadoPedido
+  + cambiarEstado(destino, ahora)
+  + state(): PedidoState
+}
+interface PedidoState {
+  + codigo(): EstadoPedido
+  + siguiente(): PedidoState
+  + cambiarA(destino): PedidoState
+}
+abstract class EstadoSecuencial
+class RecibidoState
+class ConfirmadoState
+class EnPreparacionState
+class PreparadoState
+class DespachadoState
+class EntregadoState
+class PedidoStates {
+  + reconstruir(estado): PedidoState
+}
+class PedidoService
+interface PedidoRepository
+class PedidoController
+PedidoState <|.. EstadoSecuencial
+EstadoSecuencial <|-- RecibidoState
+EstadoSecuencial <|-- ConfirmadoState
+EstadoSecuencial <|-- EnPreparacionState
+EstadoSecuencial <|-- PreparadoState
+EstadoSecuencial <|-- DespachadoState
+EstadoSecuencial <|-- EntregadoState
+RecibidoState --> ConfirmadoState : siguiente
+ConfirmadoState --> EnPreparacionState : siguiente
+EnPreparacionState --> PreparadoState : siguiente
+PreparadoState --> DespachadoState : siguiente
+DespachadoState --> EntregadoState : siguiente
+Pedido --> PedidoState : delega comportamiento
+Pedido --> PedidoStates : reconstruye
+PedidoStates --> PedidoState : instancia segun estado persistido
+PedidoService --> Pedido
+PedidoService --> PedidoRepository
+PedidoController --> PedidoService
+@enduml

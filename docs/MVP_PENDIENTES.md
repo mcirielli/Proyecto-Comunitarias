@@ -1,5 +1,9 @@
 # MVP: pendientes y trazabilidad
 
+> Incremento posterior 27/10: ya existe creación/consulta de pedidos y State real,
+> con seis clases, pruebas y persistencia. Ver PEDIDO_STATE.md. Reservas/stock y
+> Strategy siguen pendientes; este avance no cierra el circuito operativo completo.
+
 > Actualización 27/10/2026: el inventario y los conteos originales de este archivo
 > son históricos y no reflejan el código actual. Ya funcionan login con cuentas
 > locales por rol, alta/consulta y activación de productos/proveedores, persistencia

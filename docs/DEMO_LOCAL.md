@@ -1,5 +1,9 @@
 # Demo local del primer circuito funcional
 
+Actualización: ya está disponible el incremento de Pedidos + State; ver
+[recorrido de pedido y patrón](PEDIDO_STATE.md). La vista Pedidos admite alta,
+consulta y transiciones. Reservas/stock y Strategy permanecen pendientes.
+
 27/10/2026. Autorización del usuario: una cuenta local por rol para el MVP,
 sin modificar la tabla usuarios ni exigir provisión de hashes en Supabase.
 Esta decisión sustituye el requisito de cuentas persistidas para la demo local.

@@ -4,6 +4,11 @@ Proyecto académico de Proceso de Desarrollo de Software de UADE: gestión mayor
 
 ## Empezar aquí
 
+**Incremento State:** creación/consulta de pedidos con precios históricos y seis
+estados mediante clases concretas, ya demostrados sobre Supabase. Ver
+[patrón y recorrido](docs/PEDIDO_STATE.md). Reservas/inventario y Strategy siguen
+pendientes; este incremento no acredita todavía el circuito comercial completo.
+
 **Demo actual:** login local por rol, productos/proveedores persistidos en Supabase,
 alta/consulta/activación y vistas separadas con temas claro/oscuro. Ver
 [recorrido y cuentas ficticias](docs/DEMO_LOCAL.md) y [último reporte](docs/reportes/ULTIMO.md).
