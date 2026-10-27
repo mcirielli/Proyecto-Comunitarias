@@ -165,3 +165,16 @@ tbody tr:hover { background: var(--surface-raised); }
   .login-intro { display: none; }
   .login-card { padding: 1.6rem; }
 }
+.state-timeline { display: flex; flex-wrap: wrap; gap: .8rem; }
+.state-timeline span { font-size: .75rem; text-transform: capitalize; padding: .5rem .7rem; border-radius: .6rem; background: var(--surface-raised); }
+.state-timeline b { color: var(--accent); margin-right: .4rem; }
+.state-controls { display: flex; align-items: flex-end; gap: .8rem; margin-top: 1rem; }
+.state-controls label { font-size: .75rem; color: var(--muted); }
+.state-controls .field { margin-bottom: 0; min-width: 170px; }
+.order-card { padding: 1.5rem; border-top: 1px solid var(--border); }
+.order-card summary { cursor: pointer; font-size: .85rem; }
+.order-products { display: grid; gap: .6rem; }
+.order-product { display: flex; justify-content: space-between; align-items: center; padding: .8rem; border: 1px solid var(--border); border-radius: .6rem; gap: 1rem; }
+.order-product small { display: block; margin-top: .3rem; }
+.order-product input { max-width: 110px; margin: 0; }
+@media(max-width:760px) { .state-controls { align-items: stretch; flex-direction: column; } }

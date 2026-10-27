@@ -1,5 +1,18 @@
 # Decisiones de arquitectura
 
+## Prioridad académica Pedido + State — 27/10/2026
+
+El usuario priorizó los patrones y autorizó iniciar Pedido + State para avanzar
+hacia la demostración del jueves 29/10. Se conserva arquitectura y esquema actual.
+Este incremento implementa creación/consulta y ciclo de seis estados, precios de
+oferta históricos, asociación explícita del Cliente demo y fixtures separados
+creados solo a petición de Operaciones en modo demo.
+No se afirma integración completa con stock: reservas/movimientos, Strategy y
+administración siguen pendientes. Las transiciones muestran ciclo de vida y no
+acreditan por sí mismas recepción/preparación/entrega logística completas.
+Reglas, participantes y recorrido: PEDIDO_STATE.md. No se agrega CANCELADO por
+el solo hecho de existir en el CHECK de BD. Sin nuevas dependencias ni DDL.
+
 ## Demo local autorizada — 27/10/2026
 
 El usuario autorizó mantener una cuenta local por rol para acelerar el MVP de
