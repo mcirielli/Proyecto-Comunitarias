@@ -1,0 +1,6 @@
+# Cuentas ficticias en memoria para la demostración local; datos comerciales reales en Supabase.
+# Usar junto con compose.yaml y compose.supabase.yaml.
+services:
+  backend:
+    environment:
+      APP_AUTH_DEMO_ENABLED: "true"

@@ -1,5 +1,13 @@
 # MVP: pendientes y trazabilidad
 
+> Actualización 27/10/2026: el inventario y los conteos originales de este archivo
+> son históricos y no reflejan el código actual. Ya funcionan login con cuentas
+> locales por rol, alta/consulta y activación de productos/proveedores, persistencia
+> Supabase y tests de negocio. Véanse reportes/ULTIMO.md y DEMO_LOCAL.md.
+> Siguen pendientes oferta, pedidos/State, compras/Strategy, inventario,
+> facturación/pagos, reportes e historial de precios. No interpretar los conteos
+> históricos como medición actual ni dar esos flujos por hechos por existir tablas.
+
 Inventario de requisitos agrupados, no conteo de endpoints. [Kanban](KANBAN_SPRINTS.md) organiza el trabajo; el [plan Sprint 1](PLANIFICACION_SPRINT_1.md) conserva el compromiso. Estado del código comprobado por lectura en esta ejecución: solo infraestructura/health y UI de estado; sin entidades, repositorios o servicios funcionales, SQL, login ni pantallas comerciales.
 
 ## Fuentes y precedencia
