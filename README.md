@@ -4,6 +4,9 @@ Proyecto académico de Proceso de Desarrollo de Software de UADE: gestión mayor
 
 ## Empezar aquí
 
+**Oferta semanal:** borradores y publicación por Operaciones, catálogo Cliente
+y selección de oferta hacia Pedidos. Ver [API, reglas y demo](docs/OFERTAS_SEMANALES.md).
+
 **Incremento State:** creación/consulta de pedidos con precios históricos y seis
 estados mediante clases concretas, ya demostrados sobre Supabase. Ver
 [patrón y recorrido](docs/PEDIDO_STATE.md). Reservas/inventario y Strategy siguen
@@ -20,7 +23,7 @@ docker compose -f compose.yaml -f compose.supabase.yaml -f compose.demo.yaml up 
 
 Abrir http://localhost:8081. No versionar `.env`, tokens ni credenciales Supabase.
 El modo demo es exclusivamente local; sus cuentas públicas no dan acceso al panel
-o a las API de Supabase. Oferta, pedidos/State y compras/Strategy siguen pendientes.
+o a las API de Supabase. Oferta y pedidos/State están implementados; compras/Strategy e inventario siguen pendientes.
 
 | Necesidad | Documento |
 |---|---|
