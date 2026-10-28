@@ -1,5 +1,14 @@
 # Código pendiente y reparto del equipo
 
+Avance Andy 28/10/2026: C02/C03 e integración de cobertura preparados en código,
+políticas/modelo aprobados; 127 pruebas estándar, build frontend y Docker correctos.
+Propuesta 004 pendiente de autorización específica/aplicación. Sin aceptación
+Supabase/concurrencia/demo de inventario. Ver [diagnóstico y estado](INVENTARIO_RECEPCION.md)
+y [reporte del frente](reportes/2026-10-28-inventario-andy-preparado.md).
+El reparto actual autoriza a Andy como editor de inventario/recepción/PedidoService
+y adaptación indispensable de C01; Tino conserva Factura/Pago. Las tablas originales
+de planificación siguientes se preservan como antecedente, no como cierre del módulo.
+
 Actualizado: 27/10/2026, después de Pedido + State.
 C01 implementado y verificado con Supabase: migración 002 aplicada con autorización,
 111 pruebas estándar y 13 de integración aprobadas. Demanda y Quinteros con

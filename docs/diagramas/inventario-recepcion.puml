@@ -1,0 +1,79 @@
+@startuml
+!pragma layout smetana
+title Inventario: clases implementadas (activación pendiente de SQL 004)
+skinparam classAttributeIconSize 0
+class PedidoService
+class Pedido
+interface PedidoState
+class StockService
+class RecepcionService
+class CoberturaInventarioService
+class StockConsultaService
+class CompraService
+interface CompraStrategy
+class InventarioController
+class Stock {
+ ingresar(cantidad)
+ reservar(cantidad)
+ consumir(cantidad)
+ existencia()
+}
+class ReservaPedido {
+ pedidoId
+ productoId
+ cantidad
+ consumida
+ consumir(fecha)
+}
+class AsignacionInventario {
+ coberturaId
+ pedidoId
+ productoId
+ ordenId
+ cantidad
+ fase
+ recibir(fecha)
+ reservar(fecha)
+ consumir(fecha)
+}
+class MovimientoStock
+class OrdenCompra {
+ recibir(actor,fecha)
+}
+class RecepcionCompra {
+ ordenId
+ actor
+ fecha
+}
+interface StockRepository
+interface ReservaPedidoRepository
+interface AsignacionInventarioRepository
+interface MovimientoStockRepository
+interface RecepcionCompraRepository
+InventarioController --> StockConsultaService
+InventarioController --> RecepcionService
+PedidoService --> Pedido
+Pedido --> PedidoState
+PedidoService --> StockService
+CompraService --> CompraStrategy
+CompraService --> CoberturaInventarioService
+StockService --> StockRepository
+StockService --> ReservaPedidoRepository
+StockService --> MovimientoStockRepository
+StockService --> AsignacionInventarioRepository
+RecepcionService --> StockService
+RecepcionService --> OrdenCompra
+RecepcionService --> RecepcionCompraRepository
+RecepcionService --> AsignacionInventarioRepository
+CoberturaInventarioService --> AsignacionInventarioRepository
+StockRepository ..> Stock
+ReservaPedidoRepository ..> ReservaPedido
+AsignacionInventarioRepository ..> AsignacionInventario
+MovimientoStockRepository ..> MovimientoStock
+RecepcionCompraRepository ..> RecepcionCompra
+note bottom of StockService
+ Transacciones del caso de uso.
+ Locks: pedido -> productos -> orden.
+ GET no crea saldos.
+end note
+@enduml

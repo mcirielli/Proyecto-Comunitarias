@@ -1,5 +1,10 @@
 # Último reporte cerrado
 
+[Inventario Andy: código preparado, políticas aprobadas y SQL 004 pendiente — 28/10/2026](2026-10-28-inventario-andy-preparado.md).
+
+Este frente todavía no tiene aceptación Supabase/demo: no se declara inventario
+completo. Conservar cierre de Compras y referencias de otros frentes a continuación.
+
 [Compras + Strategy: cierre de revisión PR #5 — 27/10/2026](2026-10-27-cierre-compras-pr5.md).
 
 Evidencia complementaria: [migración aplicada](2026-10-27-aplicacion-migracion-compras-002.md)
