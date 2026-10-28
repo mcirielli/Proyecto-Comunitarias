@@ -1,9 +1,9 @@
 # Último reporte cerrado
 
-[Resolución de conflictos del PR #5 — 27 de octubre de 2026](2026-10-27-resolucion-pr-5.md)
+[Compras + Strategy: cierre de revisión PR #5 — 27/10/2026](2026-10-27-cierre-compras-pr5.md).
 
-Último incremento funcional con BD cerrado:
-[Oferta semanal: gestión, publicación y pedido real](2026-10-27-ofertas-semanales.md).
+Evidencia complementaria: [migración aplicada](2026-10-27-aplicacion-migracion-compras-002.md)
+y [circuito local habilitado](2026-10-27-habilitacion-compras-local.md).
 
-Incremento preparado, integración pendiente:
-[Compras + Strategy](2026-10-27-compras-strategy.md).
+Reportes anteriores de preparación/conflictos son históricos: sus bloqueos de
+esquema y pruebas se resolvieron según estos reportes. El MVP completo sigue pendiente.

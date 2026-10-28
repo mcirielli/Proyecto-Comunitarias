@@ -4,12 +4,17 @@ Proyecto académico de Proceso de Desarrollo de Software de UADE: gestión mayor
 
 ## Empezar aquí
 
+**Compras + Strategy:** demanda y Quinteros con autorización gerencial, persistencia
+y precios históricos verificados. Migración 002 aplicada en la base demo; activar
+con [guía de Compras](docs/COMPRAS_STRATEGY.md). Recepción/inventario siguen pendientes.
+
+
 **Oferta semanal:** borradores y publicación por Operaciones, catálogo Cliente
 y selección de oferta hacia Pedidos. Ver [API, reglas y demo](docs/OFERTAS_SEMANALES.md).
 
 **Incremento State:** creación/consulta de pedidos con precios históricos y seis
 estados mediante clases concretas, ya demostrados sobre Supabase. Ver
-[patrón y recorrido](docs/PEDIDO_STATE.md). Reservas/inventario y Strategy siguen
+[patrón y recorrido](docs/PEDIDO_STATE.md). Reservas/inventario siguen
 pendientes; este incremento no acredita todavía el circuito comercial completo.
 
 **Demo actual:** login local por rol, productos/proveedores persistidos en Supabase,
@@ -23,7 +28,7 @@ docker compose -f compose.yaml -f compose.supabase.yaml -f compose.demo.yaml up 
 
 Abrir http://localhost:8081. No versionar `.env`, tokens ni credenciales Supabase.
 El modo demo es exclusivamente local; sus cuentas públicas no dan acceso al panel
-o a las API de Supabase. Oferta y pedidos/State están implementados; compras/Strategy e inventario siguen pendientes.
+o a las API de Supabase. Oferta y pedidos/State están implementados; Compras/Strategy está verificado para demo y requiere el override opt-in; inventario sigue pendiente.
 
 | Necesidad | Documento |
 |---|---|

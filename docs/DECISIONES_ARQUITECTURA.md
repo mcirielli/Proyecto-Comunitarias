@@ -1,5 +1,15 @@
 # Decisiones de arquitectura
 
+## Cierre de Compras y autorización de integración — 27/10/2026
+
+En este chat, el usuario autorizó aplicar únicamente migración 002, luego habilitar
+Compras localmente y finalmente completar la revisión/PR y fusionarla si pasan las
+verificaciones. Sustituye para esta etapa la instrucción anterior de mantener la
+PR en borrador sin merge. Sin auto-merge ni despliegue público. Las reglas CMP-01
+a CMP-11 y los límites de inventario se conservan. Ver reportes de aplicación,
+habilitación y cierre PR #5. Otros entornos requieren su propia migración aprobada.
+
+
 ## Compras + Strategy — 27/10/2026
 
 Usuario autorizó implementar C01 de punta a punta y aprobó expresamente el

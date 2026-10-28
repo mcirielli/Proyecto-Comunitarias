@@ -1,0 +1,5 @@
+# Opt-in local: requiere migración 002 aplicada en la base configurada.
+services:
+  backend:
+    environment:
+      COMPRAS_ENABLED: "true"

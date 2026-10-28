@@ -2,7 +2,8 @@
 
 Fecha: 27/10/2026. Fuente: solicitud de módulo Strategy y dos aprobaciones
 expresas del usuario en este chat. Estas reglas concretan C01; no modifican State.
-Estado de integración: migración propuesta, **no autorizada para aplicación**.
+Estado actual: migración 002 aplicada con autorización; circuito local verificado.
+Reglas CMP-01 a CMP-11 conservadas. Ver reportes/2026-10-27-cierre-compras-pr5.md.
 
 | ID | Regla aprobada / contrato | Implementación y verificación |
 |---|---|---|
@@ -40,8 +41,8 @@ Emitirlas es una decisión explícita de Operaciones después de Gerencia.
 
 Inspección JDBC de solo lectura: stock vacío, tres vínculos producto_proveedor,
 órdenes vacías. CHECK original de estado: PENDIENTE/RECIBIDA/CANCELADA, varchar(20).
-No hay columnas de autorización ni vínculo pedido–compra. Se prepara una migración
-revisable; no se ejecuta DDL ni se modifica producción.
+No hay columnas de autorización ni vínculo pedido–compra. Ese diagnóstico motivó la migración 002, aplicada posteriormente con autorización
+según el reporte de aplicación. Este párrafo conserva el estado previo a migrar.
 
 Actividad 2 exige Strategy real, órdenes de ambos tipos y precios históricos;
 coincide con este incremento. El selector de perfiles del superprompt fue

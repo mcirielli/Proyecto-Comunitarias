@@ -4,10 +4,11 @@
 
 Incremento C01 para la rama `andy`. Reglas aprobadas y trazabilidad en
 [COMPRAS_REGLAS_NEGOCIO.md](COMPRAS_REGLAS_NEGOCIO.md), CMP-01 a CMP-11.
-El código utiliza tablas existentes más la migración propuesta
-`database/propuestas/002_compras_strategy.sql`, **no aplicada**. Por eso el módulo
-está deshabilitado por defecto y la PR debe permanecer borrador hasta completar
-la verificación de persistencia y el recorrido HTTP con BD.
+El código utiliza tablas existentes más la migración 002, **aplicada con autorización**
+en la base configurada localmente el 27/10/2026. El circuito de demo fue habilitado
+con el override opt-in compose.compras.yaml y verificado con Supabase. Para otra
+base no ejecutar el script sin inspección/aprobación: es de ejecución única.
+Evidencia de aplicación y pruebas: [cierre de PR #5](reportes/2026-10-27-cierre-compras-pr5.md).
 
 No hay nuevas dependencias. Se conservan Java 21, BigDecimal, transacciones,
 sesiones/CSRF, `ddl-auto=none` y `sql.init.mode=never`.
@@ -33,7 +34,8 @@ sesiones/CSRF, `ddl-auto=none` y `sql.init.mode=never`.
   reales, cantidades/precios, autorización gerencial y emisión operativa.
 
 UML fuente: [compra-strategy.puml](diagramas/compra-strategy.puml).
-No se afirma render del diagrama. MVC, Repository y Service Layer se reutilizan.
+Diagrama renderizado y revisado: [SVG](diagramas/compra-strategy.svg).
+MVC, Repository y Service Layer se reutilizan.
 
 ## API y permisos
 
@@ -71,29 +73,23 @@ ante una respuesta fallida para que reintentar no duplique. Tras un 409, actuali
 el listado; no cambiar UUID para volver a comprar la misma solicitud Quinteros.
 Datos inválidos/overflow: 400; inexistentes: 404; conflictos: 409; permisos: 403.
 
-## Activación pendiente de autorización
+## Activación local
 
-1. Revisar la propuesta 002 y autorizar expresamente su aplicación. No la ejecuta
-   ni Spring ni Docker. Verificar backup y permisos de la cuenta JDBC con el dueño
-   de la BD. Nuevas tablas tienen RLS sin políticas públicas; revisar GRANT según
-   esa cuenta. El script exige ejecución única y revierte todo ante error.
-2. Aplicar manualmente solo después de esa autorización; conservar evidencia del
-   esquema y de sus restricciones. No ejecutar la propuesta 001 de password_hash
-   como parte de compras.
-3. Habilitar `COMPRAS_ENABLED=true` en el entorno del backend. Para ejecución
-   nativa se usa esa variable; para Compose se puede crear un override local:
+La migración 002 ya se aplicó en la base usada por esta demo, con autorización
+expresa. No volver a ejecutarla; para otras bases se requiere revisión y aprobación
+propias. Evidencia: [aplicación 002](reportes/2026-10-27-aplicacion-migracion-compras-002.md).
+El valor por defecto sigue apagado para proteger bases sin migrar.
 
-   ```yaml
-   services:
-     backend:
-       environment:
-         COMPRAS_ENABLED: "true"
-   ```
+Desde la raíz, con las variables JDBC en .env y Docker Desktop iniciado:
 
-   Pasar ese archivo con `-f` después de los Compose habituales de demo. No poner
-   credenciales en el override ni habilitar compras antes de completar el esquema.
-4. Ejecutar las pruebas explícitas de integración y luego el recorrido real.
-   Si falla, deshabilitar el módulo y diagnosticar; no usar `ddl-auto=update`.
+```powershell
+docker compose -f compose.yaml -f compose.supabase.yaml -f compose.demo.yaml -f compose.compras.yaml up -d --build
+```
+
+Abrir http://localhost:8081. Operaciones crea compras y emite Quinteros; Gerencia
+autoriza. Cuentas ficticias de DEMO_LOCAL.md. No publicar este modo de demostración.
+No ejecutar simultáneamente otro proyecto Compose con los mismos puertos.
+No se necesita modificar .env ni pasar secretos al frontend.
 
 ## Verificación
 

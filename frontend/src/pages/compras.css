@@ -1,19 +1,24 @@
-.compras-module { display: grid; gap: 1.25rem; }
+.compras-module { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; min-width: 0; }
+.compras-module > .surface { min-width: 0; border-radius: .85rem; }
+.compras-module h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: .6rem; }
+.compras-intro .menu-label { padding: 0; margin-bottom: .6rem; }
+.compras-module .field { margin: 0; min-width: 0; }
 .compras-intro { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.5rem; }
 .compras-form, .compras-list { padding: 1.5rem; }
 .compras-form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
-.compras-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+.compras-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; margin: 1rem 0; }
 .compras-fields label, .compras-selection { display: grid; gap: .6rem; }
 .compras-selection { margin: 1rem 0; }
 .compras-selection label { display: flex; gap: .6rem; align-items: center; }
 .compras-selection input[type=checkbox] { width: auto; }
 .compras-quantity { justify-content: space-between; }
-.compras-quantity input { max-width: 8rem; }
+.compras-quantity input { max-width: 8rem; flex-shrink: 0; }
+.compras-quantity > span { min-width: 0; overflow-wrap: anywhere; }
 .compras-quantity small { display: block; }
-.compra-card { border-top: 1px solid var(--border); padding: 1.3rem 0; }
+.compra-card { overflow-wrap: anywhere; border-top: 1px solid var(--border); padding: 1.3rem 0; }
 .compra-heading { display: flex; gap: 1rem; justify-content: space-between; align-items: start; flex-wrap: wrap; }
 .compra-heading strong { font-size: .8rem; }
-.compras-table { overflow-x: auto; }
+.compras-table { overflow-x: auto; max-width: 100%; }
 .compras-table table { width: 100%; text-align: left; border-collapse: collapse; }
 .compras-table th, .compras-table td { padding: .7rem .4rem; border-bottom: 1px solid var(--border); }
 .compra-total { text-align: right; font-weight: 700; }

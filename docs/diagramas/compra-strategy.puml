@@ -1,4 +1,5 @@
 @startuml
+!pragma layout smetana
 title Compras: Strategy y coordinación transaccional
 interface CompraStrategy {
   +calcular(ContextoCompra): Map<Long,Integer>
@@ -52,6 +53,6 @@ CoberturaCompra --> "0..1" OrdenCompra
 note bottom of CoberturaCompra
 Pedidos únicos, UUID y asignaciones durables.
 No reserva ni mueve inventario.
-Migración propuesta sin aplicar.
+Migración 002 aplicada con autorización.
 end note
 @enduml
