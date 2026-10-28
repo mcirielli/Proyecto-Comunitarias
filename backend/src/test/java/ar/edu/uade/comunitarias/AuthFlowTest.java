@@ -17,9 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, properties={
+    "app.compras.enabled=true",
     "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration"})
 @ActiveProfiles("supabase")
 class AuthFlowTest {
+    @MockBean ar.edu.uade.comunitarias.service.CompraService compras;
     @MockBean UsuarioRepository usuarios;
     @MockBean ClienteRepository clientes;
     @MockBean OfertaRepository ofertas;
@@ -105,6 +107,40 @@ class AuthFlowTest {
                 .method("PATCH",HttpRequest.BodyPublishers.ofString("{\"estado\":\"ENTREGADO\"}")).build();
         assertEquals(403,client.send(request,HttpResponse.BodyHandlers.ofString()).statusCode());
         verifyNoInteractions(pedidos);
+    }
+    HttpResponse<String> compraPost(String path, String body, String token) throws Exception {
+        var request=HttpRequest.newBuilder(URI.create("http://localhost:"+port+path)).header("Content-Type","application/json");
+        if(token!=null) request.header("X-CSRF-TOKEN",token);
+        return client.send(request.POST(HttpRequest.BodyPublishers.ofString(body)).build(),HttpResponse.BodyHandlers.ofString());
+    }
+    @Test void clienteNoVeCostosNiEjecutaCompras() throws Exception {
+        account("CLIENTE",true,true); assertEquals(200,login(csrf()).statusCode());
+        assertEquals(403,get("/api/compras").statusCode());
+        assertEquals(403,get("/api/compras/disponibilidad").statusCode());
+        assertEquals(403,compraPost("/api/compras/quinteros","{}",csrf()).statusCode());
+        verifyNoInteractions(compras);
+    }
+    @Test void gerenciaAutorizaSinHeredarOperaciones() throws Exception {
+        account("GERENCIA",true,true); assertEquals(200,login(csrf()).statusCode());
+        assertEquals(200,get("/api/compras").statusCode());
+        assertEquals(403,get("/api/compras/contexto").statusCode());
+        assertEquals(403,compraPost("/api/compras/quinteros","{}",csrf()).statusCode());
+        assertEquals(403,compraPost("/api/compras/1/emitir","{}",csrf()).statusCode());
+        assertEquals(200,compraPost("/api/compras/1/autorizar","{}",csrf()).statusCode());
+        verify(compras).autorizar(eq(1L),argThat(a -> a.rol().equals("GERENCIA")));
+    }
+    @Test void operacionesNoAutorizaYSigueNecesitandoCsrf() throws Exception {
+        account("OPERACIONES",true,true); assertEquals(200,login(csrf()).statusCode());
+        assertEquals(403,compraPost("/api/compras/1/autorizar","{}",csrf()).statusCode());
+        assertEquals(403,compraPost("/api/compras/1/emitir","{}",null).statusCode());
+        assertEquals(200,compraPost("/api/compras/1/emitir","{}",csrf()).statusCode());
+        verify(compras).emitir(eq(1L),argThat(a -> a.rol().equals("OPERACIONES")));
+    }
+    @Test void cantidadesInvalidasSon400AntesDeEscritura() throws Exception {
+        account("OPERACIONES",true,true); assertEquals(200,login(csrf()).statusCode());
+        var body="{\"claveSolicitud\":\"00000000-0000-0000-0000-000000000001\",\"proveedorId\":1,\"pedidos\":[],\"productos\":[{\"productoId\":1,\"cantidad\":0}]}";
+        assertEquals(400,compraPost("/api/compras/quinteros",body,csrf()).statusCode());
+        verifyNoInteractions(compras);
     }
 
     @Test void ofertasRespetanRolesCsrfYContratoComercial() throws Exception {

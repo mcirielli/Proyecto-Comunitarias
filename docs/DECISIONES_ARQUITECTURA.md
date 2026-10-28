@@ -1,5 +1,30 @@
 # Decisiones de arquitectura
 
+## Cierre de Compras y autorización de integración — 27/10/2026
+
+En este chat, el usuario autorizó aplicar únicamente migración 002, luego habilitar
+Compras localmente y finalmente completar la revisión/PR y fusionarla si pasan las
+verificaciones. Sustituye para esta etapa la instrucción anterior de mantener la
+PR en borrador sin merge. Sin auto-merge ni despliegue público. Las reglas CMP-01
+a CMP-11 y los límites de inventario se conservan. Ver reportes de aplicación,
+habilitación y cierre PR #5. Otros entornos requieren su propia migración aprobada.
+
+
+## Compras + Strategy — 27/10/2026
+
+Usuario autorizó implementar C01 de punta a punta y aprobó expresamente el
+contrato de stock libre, demanda CONFIRMADO, proveedor explícito, órdenes abiertas
+y autorización/emisión Quinteros por roles separados. También aprobó cobertura
+persistida para evitar reutilización entre grupos, con límite de demo sin liberar
+asignaciones hasta integrar inventario. Reglas con IDs CMP-01 a CMP-11 en
+[COMPRAS_REGLAS_NEGOCIO.md](COMPRAS_REGLAS_NEGOCIO.md); participantes/API y activación
+en [COMPRAS_STRATEGY.md](COMPRAS_STRATEGY.md).
+
+Autorización de esquema: **solo preparar** propuesta 002; no aplicarla.
+El módulo queda apagado por defecto hasta completar esa dependencia. No se
+modifican State, ofertas, reservas/movimientos ni precios de proveedores. Se
+conservan sesiones/CSRF y separación Gerencia/Operaciones, sin dependencias nuevas.
+
 ## Oferta semanal C05 — 27/10/2026
 
 Usuario autorizó gestión/publicación end-to-end, commit/push a tino y PR a main,
