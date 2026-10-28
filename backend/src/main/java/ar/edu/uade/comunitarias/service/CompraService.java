@@ -24,23 +24,45 @@ public class CompraService {
     private final CoberturaCompraRepository coberturas;
     private final Map<TipoCompra,CompraStrategy> estrategias;
     private final Clock clock;
-    public CompraService(CompraAbastecimientoRepository abastecimiento, ProveedorRepository proveedores,
-            ProductoProveedorRepository precios, StockAbastecimientoRepository stock,
-            OrdenCompraRepository ordenes, CoberturaCompraRepository coberturas,
-            CompraPorDemandaStrategy demanda, CompraQuinterosStrategy quinteros, Clock clock) {
-        this.abastecimiento=abastecimiento; this.proveedores=proveedores; this.precios=precios;
-        this.stock=stock; this.ordenes=ordenes; this.coberturas=coberturas; this.clock=clock;
+
+
+    //Constructor del servicio de compras
+    public CompraService(CompraAbastecimientoRepository abastecimiento,
+                         ProveedorRepository proveedores,
+                         ProductoProveedorRepository precios,
+                         StockAbastecimientoRepository stock,
+                         OrdenCompraRepository ordenes,
+                         CoberturaCompraRepository coberturas,
+                         CompraPorDemandaStrategy demanda,
+                         CompraQuinterosStrategy quinteros,
+                         Clock clock)
+    {
+
+        this.abastecimiento=abastecimiento;
+        this.proveedores=proveedores;
+        this.precios=precios;
+        this.stock=stock;
+        this.ordenes=ordenes;
+        this.coberturas=coberturas;
+        this.clock=clock;
+
         estrategias=Map.of(TipoCompra.DEMANDA_CLIENTES,demanda,TipoCompra.STOCK_QUINTEROS,quinteros);
     }
 
+    //métodos
+
     public ResultadoCompraResponse crear(TipoCompra tipo, CrearCompraRequest request, SessionResponse actor) {
+
         exigirRol(actor,"OPERACIONES");
         validar(request,tipo);
+
         var proveedor=proveedores.findById(request.proveedorId()).orElseThrow(() -> new RecursoNoEncontradoException("Proveedor inexistente"));
+
         if (!proveedor.getActivo()) throw new ReglaNegocioException("Proveedor inactivo");
         List<Map<Long,Integer>> pedidos=new ArrayList<>();
         Map<Long,Integer> manual=new TreeMap<>();
         Map<Long,Integer> total=new TreeMap<>();
+
         // Orden estable de locks: primero pedidos y luego productos, también al emitir.
         for (Long id : new TreeSet<>(request.pedidos())) {
             var pedido=abastecimiento.bloquearPedido(id).orElseThrow(() -> new RecursoNoEncontradoException("Pedido inexistente"));
@@ -50,10 +72,15 @@ public class CompraService {
             pedidos.add(lineas);
             lineas.forEach((producto,cantidad) -> total.merge(producto,cantidad,Math::addExact));
         }
+
         request.productos().forEach(l -> manual.put(l.productoId(),l.cantidad()));
         var ids=new TreeSet<>(tipo==TipoCompra.DEMANDA_CLIENTES ? total.keySet() : manual.keySet());
+
         Map<Long,Producto> productos=new TreeMap<>();
+
         for(Long id:ids) productos.put(id,abastecimiento.bloquearProducto(id).orElseThrow(() -> new RecursoNoEncontradoException("Producto inexistente")));
+
+
         if(ordenes.existsByClaveSolicitud(request.claveSolicitud()) || coberturas.existsByClaveSolicitud(request.claveSolicitud()))
             throw new ReglaNegocioException("Solicitud ya procesada; consultá el listado");
         if(!request.pedidos().isEmpty() && coberturas.contarPedidosCubiertos(request.pedidos())>0)
@@ -63,11 +90,14 @@ public class CompraService {
         stock.findByProductoIdIn(ids).forEach(s -> libre.put(s.getProductoId(),s.getCantidadDisponible()));
         ordenes.findByEstadoIn(List.of(EstadoCompra.EMITIDA,EstadoCompra.PENDIENTE)).forEach(o ->
             o.getDetalles().forEach(d -> abiertas.merge(d.getProducto().getId(),d.getCantidad(),Math::addExact)));
+
+
         // Ledger conservador aprobado para demo; recepción/liberación queda en inventario.
         coberturas.findAll().forEach(c -> c.getAsignaciones().forEach(a -> {
             libre.compute(a.getProductoId(),(id,n) -> Math.max(0,(n==null?0:n)-a.getStock()));
             abiertas.compute(a.getProductoId(),(id,n) -> Math.max(0,(n==null?0:n)-a.getAbierta()));
         }));
+
         CompraStrategy estrategia=estrategias.get(tipo);
         var cantidades=estrategia.calcular(new ContextoCompra(pedidos,manual,libre,abiertas));
         Map<Long,ProductoProveedor> vinculos=new HashMap<>();

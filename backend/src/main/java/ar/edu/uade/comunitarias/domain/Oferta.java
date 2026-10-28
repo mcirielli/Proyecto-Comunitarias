@@ -10,6 +10,7 @@ public class Oferta {
     @Column(name="fecha_fin") private LocalDate fechaFin;
     private boolean publicada;
     @OneToMany(mappedBy="oferta", cascade=CascadeType.ALL) private List<DetalleOferta> detalles=new ArrayList<>();
+
     protected Oferta() {}
     public Oferta(String titulo, LocalDate inicio, LocalDate fin) { this.titulo=titulo; fechaInicio=inicio; fechaFin=fin; publicada=true; }
     /** El constructor anterior conserva el contrato de fixtures y pedidos existentes. */

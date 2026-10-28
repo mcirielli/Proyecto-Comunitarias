@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Service
 @Profile("supabase")
 @ConditionalOnProperty(name="app.auth.demo-enabled", havingValue="false", matchIfMissing=true)
+
 public class UsuarioDetailsService implements UserDetailsService {
     private final UsuarioRepository repository;
     public UsuarioDetailsService(UsuarioRepository repository) { this.repository = repository; }

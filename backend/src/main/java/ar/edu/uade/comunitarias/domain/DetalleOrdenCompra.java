@@ -10,10 +10,24 @@ public class DetalleOrdenCompra {
     @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="producto_id") private Producto producto;
     private int cantidad;
     @Column(name="precio_unitario") private BigDecimal precioUnitario;
+
+
     protected DetalleOrdenCompra() {}
-    DetalleOrdenCompra(OrdenCompra orden, Producto producto, int cantidad, BigDecimal precio) {
-        this.orden=orden; this.producto=producto; this.cantidad=cantidad; this.precioUnitario=precio;
+
+    //Constructor
+    DetalleOrdenCompra(OrdenCompra orden,
+                       Producto producto,
+                       int cantidad,
+                       BigDecimal precio)
+
+    {
+        this.orden=orden;
+        this.producto=producto;
+        this.cantidad=cantidad;
+        this.precioUnitario=precio;
     }
+
+    //Getters
     public Producto getProducto() { return producto; }
     public int getCantidad() { return cantidad; }
     public BigDecimal getPrecioUnitario() { return precioUnitario; }

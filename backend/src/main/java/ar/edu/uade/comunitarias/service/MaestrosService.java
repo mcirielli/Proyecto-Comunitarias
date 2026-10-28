@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Profile("supabase")
 @Transactional(readOnly=true)
+
 public class MaestrosService {
+
     @Transactional
     public ProductoResponse cambiarProductoActivo(Long id, boolean activo) {
         var producto = productos.findById(id).orElseThrow(() ->
@@ -19,6 +21,7 @@ public class MaestrosService {
         producto.cambiarActivo(activo);
         return ProductoResponse.from(productos.saveAndFlush(producto));
     }
+
     @Transactional
     public ProveedorResponse cambiarProveedorActivo(Long id, boolean activo) {
         var proveedor = proveedores.findById(id).orElseThrow(() ->
@@ -26,18 +29,23 @@ public class MaestrosService {
         proveedor.cambiarActivo(activo);
         return ProveedorResponse.from(proveedores.saveAndFlush(proveedor));
     }
+
+
     private final ProductoRepository productos;
     private final ProveedorRepository proveedores;
     public MaestrosService(ProductoRepository productos, ProveedorRepository proveedores) {
         this.productos = productos;
         this.proveedores = proveedores;
     }
+
     public List<ProductoResponse> productos() {
         return productos.findAll().stream().map(ProductoResponse::from).toList();
     }
+
     public List<ProveedorResponse> proveedores() {
         return proveedores.findAll().stream().map(ProveedorResponse::from).toList();
     }
+
     @Transactional
     public ProductoResponse crearProducto(CrearProductoRequest request) {
         var producto = new Producto(required(request.nombre(), "nombre"),
@@ -45,6 +53,8 @@ public class MaestrosService {
                 required(request.unidadMedida(), "unidadMedida"));
         return ProductoResponse.from(productos.saveAndFlush(producto));
     }
+
+
     @Transactional
     public ProveedorResponse crearProveedor(CrearProveedorRequest request) {
         var email = optional(request.email());
@@ -55,6 +65,7 @@ public class MaestrosService {
                 optional(request.cuit()), email, optional(request.telefono()));
         return ProveedorResponse.from(proveedores.saveAndFlush(proveedor));
     }
+
     private static String required(String value, String field) {
         if (value == null || value.isBlank()) throw new IllegalArgumentException(field + " es obligatorio");
         return value.trim();

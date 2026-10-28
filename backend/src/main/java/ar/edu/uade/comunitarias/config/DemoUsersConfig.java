@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @Configuration
 @Profile("supabase")
 @ConditionalOnProperty(name="app.auth.demo-enabled", havingValue="true")
+
 public class DemoUsersConfig {
     @Bean
     public UserDetailsService demoUsers(PasswordEncoder encoder) {
