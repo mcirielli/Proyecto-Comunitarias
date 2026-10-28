@@ -18,6 +18,9 @@ public class PedidoService {
     private final OfertaRepository ofertas;
     private final Clock clock;
     private final boolean demo;
+    private StockService inventario;
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    public void configurarInventario(StockService inventario){this.inventario=inventario;}
     public PedidoService(PedidoRepository pedidos,ClienteRepository clientes,OfertaRepository ofertas,Clock clock,
             @Value("${app.auth.demo-enabled:false}") boolean demo) {
         this.pedidos=pedidos;this.clientes=clientes;this.ofertas=ofertas;this.clock=clock;this.demo=demo;
@@ -77,6 +80,12 @@ public class PedidoService {
     public PedidoResponse cambiarEstado(Long id,EstadoPedido destino) {
         var pedido=pedidos.buscarParaCambiar(id).orElseThrow(() -> new RecursoNoEncontradoException("Pedido inexistente"));
         pedido.cambiarEstado(destino,clock.instant());
+        if(inventario!=null) {
+            var authentication=org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if(authentication==null || !(authentication.getPrincipal() instanceof UsuarioPrincipal principal) || !"OPERACIONES".equals(principal.identity().rol()))
+                throw new org.springframework.security.access.AccessDeniedException("Operaciones requerido");
+            inventario.transicion(pedido,destino,principal.identity().email());
+        }
         return PedidoResponse.from(pedidos.saveAndFlush(pedido));
     }
 }

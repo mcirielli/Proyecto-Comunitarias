@@ -44,6 +44,10 @@ public class OrdenCompra {
             throw new ReglaNegocioException("La compra requiere autorización previa de Gerencia");
         estado=EstadoCompra.EMITIDA; emitidaPor=actor; fechaEmision=ahora;
     }
+    public void recibir(String actor,Instant ahora) {
+        if(estado!=EstadoCompra.EMITIDA)throw new ReglaNegocioException("Solo se reciben órdenes EMITIDA, una vez");
+        Objects.requireNonNull(actor);Objects.requireNonNull(ahora);estado=EstadoCompra.RECIBIDA;
+    }
     public Long getId() { return id; }
     public Proveedor getProveedor() { return proveedor; }
     public TipoCompra getTipo() { return tipo; }

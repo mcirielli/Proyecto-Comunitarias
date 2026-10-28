@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 public class PedidoController {
     private final PedidoService service;
     public PedidoController(PedidoService service) {this.service=service;}
+    @ExceptionHandler(ArithmeticException.class)
+    public ResponseEntity<java.util.Map<String,String>> exceso(){return ResponseEntity.badRequest().body(java.util.Map.of("error","Cantidad fuera de rango"));}
     @GetMapping public List<PedidoResponse> listar(@AuthenticationPrincipal UsuarioPrincipal actor) {return service.listar(actor.identity());}
     @GetMapping("/contexto") public PedidoContextoResponse contexto(@AuthenticationPrincipal UsuarioPrincipal actor) {return service.contexto(actor.identity());}
     @PostMapping public ResponseEntity<PedidoResponse> crear(@Valid @RequestBody CrearPedidoRequest request,@AuthenticationPrincipal UsuarioPrincipal actor) {return ResponseEntity.status(201).body(service.crear(request,actor.identity()));}
