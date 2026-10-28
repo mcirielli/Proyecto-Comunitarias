@@ -1,5 +1,20 @@
 # Decisiones de arquitectura
 
+## Inventario y recepción Andy — aprobación del 27/10/2026
+
+Usuario respondió «Aprobar políticas y modelo propuestos» al paquete de
+POLITICAS_INVENTARIO_RECEPCION.md: reserva completa al entrar EN_PREPARACION,
+despacho consume una vez, recepción total solo EMITIDA, continuidad histórica de
+productos inactivos, roles Operaciones/Gerencia y ledger durable por pedido/producto/
+orden. Preserva seis estados, precios históricos, State y Strategy reales, CMP-06;
+evoluciona CMP-07 con fases y trazabilidad, conservando originales.
+
+Autoriza implementar/preparar SQL 004, NO aplicarlo. Migración/backfill específico,
+respaldo y habilitación de inventario requieren aprobación posterior sobre script
+exacto. Código preparado detrás de opt-in apagado; aceptación Supabase/concurrencia
+y demo todavía pendientes. No autoriza cancelaciones/ajustes manuales, cambios
+de Factura/Pago de Tino, despliegue o merge. La aprobación histórica 002 no se amplía.
+
 ## Cierre de Compras y autorización de integración — 27/10/2026
 
 En este chat, el usuario autorizó aplicar únicamente migración 002, luego habilitar
