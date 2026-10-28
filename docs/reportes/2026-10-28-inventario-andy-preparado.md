@@ -3,6 +3,16 @@
 Estado: CERRADO para esta ventana; incremento funcional aún en validación.
 Fecha/zona: 27–28/10/2026, America/Buenos_Aires. Rama andy; base da976fc.
 
+PR nueva en borrador: https://github.com/mcirielli/Proyecto-Comunitarias/pull/6
+(andy → main). Publicados 3bbd34c (políticas), ec5cb84 (backend/SQL propuesto),
+86753ac (interfaz/permisos) y e103807 (evidencia/UML). Sin force push ni merge.
+El conector rechazó crear PR con 403; se creó mediante GitHub API con la credencial
+Git local existente, capturada solo en memoria. No se guardó/imprimió el token.
+
+SQL 004 presentado para autorización específica: SHA256
+54d2eba3baf035bdfabbb9f33df0f20c154ebc65fa5881ac9b1d4ec6381575dc.
+La solicitud de esa aprobación no equivale a respuesta afirmativa ni a ejecución.
+
 ## Consigna y alcance autorizado
 
 Ejecutar prompt de stock, reservas, recepción e integración State/Strategy por etapas,
