@@ -1,0 +1,69 @@
+@startuml
+!pragma layout smetana
+title Facturacion interna y pagos: servicios, historicos y transacciones
+class FacturacionPage <<React>>
+class FacturaController
+class PagoController
+class FacturacionService {
+ +emitir(request,actor)
+ +listar(actor)
+ +detalle(id,actor)
+}
+class PagoService {
+ +registrar(request,actor)
+}
+class FacturacionAcceso {
+ +clientePropio(actor)
+ +comprobar(factura,actor)
+}
+class Factura {
+ numero: String
+ importeTotal: BigDecimal
+ estado: EstadoFactura
+ +registrarAcumulado(pagado)
+}
+class Pago {
+ claveSolicitud: UUID
+ importe: BigDecimal
+ medioPago: MedioPago
+ +coincide(facturaId,importe,medio,referencia)
+}
+class Pedido {
+ estado: EstadoPedido
+ +total(): BigDecimal
+}
+interface FacturaRepository
+interface PagoRepository
+interface FacturacionPedidoRepository
+interface ClienteRepository
+FacturacionPage --> FacturaController : HTTP + sesion/CSRF
+FacturacionPage --> PagoController : pago manual
+FacturaController --> FacturacionService
+PagoController --> PagoService
+PagoController --> FacturacionService : consulta autorizada
+FacturacionService --> FacturacionAcceso
+PagoService --> FacturacionAcceso
+FacturacionAcceso --> ClienteRepository
+FacturacionService --> FacturaRepository
+FacturacionService --> PagoRepository
+FacturacionService --> FacturacionPedidoRepository : lock pedido al emitir
+PagoService --> FacturaRepository : lock factura al pagar
+PagoService --> PagoRepository
+Factura "0..1" --> "1" Pedido : origen ENTREGADO
+Pago "0..*" --> "1" Factura
+note bottom of Factura
+ Una factura por pedido, numero unico.
+ Importe del servidor; precio historico.
+ Cero queda PAGADA sin pago ficticio.
+end note
+note bottom of Pago
+ UUID unico y saldo serializado.
+ Mismo contenido: mismo pago.
+ Error: rollback pago y estado.
+end note
+note right of Pedido
+ No modifica State ni inventario.
+ Datos actuales de comercio/producto;
+ no es un comprobante fiscal.
+end note
+@enduml

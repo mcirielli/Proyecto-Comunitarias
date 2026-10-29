@@ -4,6 +4,12 @@ Proyecto académico de Proceso de Desarrollo de Software de UADE: gestión mayor
 
 ## Empezar aquí
 
+**Facturación interna y pagos:** emisión desde pedidos entregados, pagos parciales,
+saldo e idempotencia. Activación opt-in posterior a 003; ver [guía y API](docs/FACTURACION_PAGOS.md)
+y [políticas aprobadas](docs/POLITICAS_FACTURACION_PAGOS.md). No tiene validez fiscal
+ni procesa dinero. Revisión de PR pendiente; no implica cierre del MVP.
+
+
 **Compras + Strategy:** demanda y Quinteros con autorización gerencial, persistencia
 y precios históricos verificados. Migración 002 aplicada en la base demo; activar
 con [guía de Compras](docs/COMPRAS_STRATEGY.md). Recepción/inventario siguen pendientes.

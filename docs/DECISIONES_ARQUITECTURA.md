@@ -1,5 +1,20 @@
 # Decisiones de arquitectura
 
+## Facturación interna y pagos — aprobación 27/10, cierre 28/10/2026
+
+El usuario autorizó C06 en tino, commit/push y PR a main, sin merge/auto-merge.
+Aprobó la política completa FAC/PAG: INT-PED-{pedidoId}, solo ENTREGADO, ARS y
+precio histórico, parciales sin sobrepago, PENDIENTE/PAGADA y factura cero PAGADA
+sin pago ficticio; medios manuales EFECTIVO/TRANSFERENCIA/TARJETA, referencia
+opcional y fecha servidor. Sin edición/anulación/devolución. Operaciones escribe,
+Cliente consulta solo propias y Gerencia consulta. Reintentos recuperan la misma
+factura/pago; clave de pago con otro contenido devuelve conflicto. Sin snapshot
+fiscal de identidad. Reglas y participantes en POLITICAS_FACTURACION_PAGOS.md.
+Autorizó específicamente aplicar únicamente 003 (UUID único de pagos): ejecutada
+con transacción y verificación post-commit. No se aplicó SQL de Andy ni se alteraron
+Pedido/State, stock o compras. Activación opt-in independiente; no despliegue público.
+
+
 ## Cierre de Compras y autorización de integración — 27/10/2026
 
 En este chat, el usuario autorizó aplicar únicamente migración 002, luego habilitar

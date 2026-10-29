@@ -1,5 +1,9 @@
 # Último reporte cerrado
 
+[Facturación interna y pagos — 28/10/2026](2026-10-28-facturacion-pagos-tino.md).
+
+Cierre anterior de Compras (conservar evidencia):
+
 [Compras + Strategy: cierre de revisión PR #5 — 27/10/2026](2026-10-27-cierre-compras-pr5.md).
 
 Evidencia complementaria: [migración aplicada](2026-10-27-aplicacion-migracion-compras-002.md)
