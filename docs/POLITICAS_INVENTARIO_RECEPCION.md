@@ -1,10 +1,12 @@
 # Políticas de inventario y recepción
 
-Fecha inicial: 27/10/2026, Argentina; ejecución continúa el 28/10.
+Fecha inicial: 27/10/2026, Argentina. Estado consolidado al 29/10/2026.
 Estado al 29/10/2026: POLÍTICAS/MODELO Y SQL APROBADOS; 004 aplicada,
-persistencia/concurrencia verificadas. Cierre de aceptación y Tino pendientes.
+persistencia/concurrencia verificadas. Aceptación y compatibilidad con Tino en
+[matriz de cierre](INVENTARIO_ACEPTACION.md).
 El usuario respondió «Aprobar políticas y modelo propuestos» a la consulta agrupada
-de esta sesión. Autoriza implementar y preparar 004, no ejecutarla en Supabase.
+de esta sesión. Esa primera aprobación autorizó código y preparación de SQL;
+la posterior «Autorizar 004 y validación real» autorizó la aplicación ya ejecutada.
 
 ## Fuentes y precedencia
 
@@ -21,7 +23,7 @@ Las reglas siguientes fueron aprobadas como paquete. La tabla define su aceptaci
 la evidencia real y sus límites se detallan al final. No confundir código compilado
 con comportamiento comprobado en la base real.
 
-| ID | Regla e invariante | Entidades/servicios previstos | Transacción/constraint previsto | Prueba de aceptación pendiente | Legado |
+| ID | Regla e invariante | Entidades/servicios | Transacción/constraint | Aceptación requerida | Legado |
 |---|---|---|---|---|---|
 | STK-01 | Disponible L significa libre físico y reservado R pertenece a pedidos. Existencia física F=L+R. L,R>=0; cantidades enteras positivas; rechazar overflow de L,R y F | Stock, StockService; StockAbastecimiento conserva lectura coherente | CHECK y aritmética exacta; una autoridad de escritura | Fila ausente consulta como cero sin INSERT; límites y saldos | No inventar saldos iniciales |
 | STK-02 | Operaciones ejecuta acciones; Operaciones y Gerencia consultan stock/movimientos; Cliente sin acceso | StockController, SecurityConfig, DTO sin costos | Sesión/CSRF; autorización servidor | 401/403, CSRF y recarga | Mantener permisos de Tino |
@@ -37,9 +39,11 @@ con comportamiento comprobado en la base real.
 | STK-05 | Pedidos avanzados históricos sin reserva no generan egreso retroactivo. Sin cambios de estado operativos sobre ellos hasta resolución específica; ENTREGADO permite lectura y facturación | PedidoService | Corte de activación documentado; validación explícita | Caso legado sin saldos/movimientos inventados | Un caso ENTREGADO observado; sin EN_PREPARACION/PREPARADO/DESPACHADO observados |
 
 Fuente y fecha de cada regla: solicitud y aprobación agrupada del 27/10/2026.
-Implementación: código preparado en esta rama, activación y aceptación persistente pendientes.
+Implementación persistida y activación local verificadas. Evidencia por caso en
+INVENTARIO_ACEPTACION.md y el reporte de cierre; el flag general sigue apagado
+para evitar habilitar otras bases sin las migraciones correspondientes.
 STK-01 preserva CMP-01; REC-01 mantiene CMP-08; STK-04 cambia el mecanismo de
-CMP-07 y el límite histórico sin liberación, por lo que requiere aprobación expresa.
+CMP-07 y el límite histórico sin liberación; esa evolución fue aprobada expresamente.
 
 ## Extensión de persistencia aprobada conceptualmente
 
@@ -66,11 +70,10 @@ resolución específica aprobada, manteniendo consultas. La asignación observad
 dos unidades abiertas debe verificarse contra su pedido y orden antes de convertir.
 No aprobar un backfill genérico ni inventar reservas de pedidos entregados.
 
-La propuesta preparada 004_stock_reservas_recepcion.sql incorpora CHECK/FK/
-UNIQUE, índices y RLS. Permisos JDBC/seq se verificarán al aplicar. El nombre estaba libre;
-003 queda para Tino. Aprobación conceptual permite preparar DDL, no ejecutarlo.
-Antes de aplicar se presentarán SQL exacto, respaldo restaurable apropiado,
-precondiciones, transacción, verificación y recuperación para aprobación separada.
+004_stock_reservas_recepcion.sql incorporó CHECK/FK/UNIQUE, índices y RLS. Se
+aplicó una vez con autorización específica, respaldo y permisos JDBC/secuencias
+verificados. 003 pertenece a Tino: se verificó su presencia sin aplicarla de nuevo.
+La aprobación para esta base no autoriza ejecutar scripts en otras bases.
 
 ## Contrato de cantidades y ejemplos de aceptación
 
@@ -80,7 +83,7 @@ inconsistentes silenciosamente: conciliar antes de activar. Compras usa estos U
 y Strategy existente para calcular faltante. Cantidades operadas y F se validan
 con aritmética exacta; agregaciones intermedias deben detectar overflow.
 
-Ejemplo propuesto, no demo ejecutada: L=4,R=0, orden O1 EMITIDA=6.
+Ejemplo de aceptación A/B cubierto por prueba persistente: L=4,R=0, orden O1 EMITIDA=6.
 A pide 7: compromete 4 FISICA y 3 ABIERTA de O1, compra nueva=0.
 B pide 5: quedan 0 de stock y 3 abiertos; compra O2=2. Compromisos abiertos=8,
 distribuidos A/O1=3, B/O1=3, B/O2=2. Recibir O1: L=10,R=0, abierto=2;
@@ -91,7 +94,7 @@ B queda comprometido por 5 y puede reservar: L=0,R=5. Entregar A no modifica
 ningún saldo. C pide 1 y debe comprar 1 en todos los puntos donde no hay recurso
 sin comprometer. Repetir abastecimiento de A/B se rechaza por CMP-06.
 
-## Orden global de locks propuesto
+## Orden global de locks implementado
 
 Pedidos existentes por ID ascendente (cuando el caso los modifica), luego productos
 por ID ascendente, luego órdenes existentes por ID ascendente, luego asignaciones/
@@ -109,28 +112,32 @@ de Stock por sí solo no sirve. GET nunca inserta.
 - STK-01/STK-03, RSV-01/02/03/04, REC-01/02/03: Stock, ReservaPedido,
   MovimientoStock, RecepcionCompra, AsignacionInventario y servicios implementados
   detrás de app.inventario.enabled=false por defecto. Transacciones de aplicación
-  y bloqueos reales en repositorios; su eficacia concurrente aún no verificada en BD.
+  y bloqueos reales en repositorios; recepción y reserva concurrentes verificadas
+  con conexiones/transacciones distintas y sin saldos negativos.
 - STK-02: permisos HTTP comprobados con servidor real y servicios mock. Cliente
   rechazado, Gerencia consulta sin recibir, Operaciones con CSRF; payload de
   cantidades manuales rechazado 400. Esto no prueba persistencia.
 - STK-04: CoberturaInventarioService conserva originales, distribuye fuentes
-  deterministas y consume fases sin doble descuento. Caso A/B aprobado en prueba
-  de servicios con repositorios mock y entidades reales; aceptación Supabase pendiente.
+  deterministas y consume fases sin doble descuento. Caso A/B verificado con
+  repositorios reales y reconstrucción entre transacciones en Supabase.
 - STK-05: se exige reserva propia para pasos avanzados; ENTREGADO previo permanece
   consultable. No se generaron reservas ni movimientos históricos.
 - InventarioDomainTest: siete reglas de dominio. InventarioServiciosTest: siete
   casos (incluye A/B). AuthFlowTest: dos casos nuevos de inventario. Maven: 127
-  pruebas estándar aprobadas en esta ventana. Las siete de InventarioSupabaseIT
-  están compiladas, todavía NO ejecutadas; incluyen concurrencia/rollback real.
-- 004 agrega tres tablas y dos índices de unicidad de movimiento. Backfill propuesto
+  pruebas estándar aprobadas en la primera ventana. La matriz posterior amplía
+  InventarioSupabaseIT a quince escenarios y agrega verificación UTF-8 HTTP.
+  Las cifras finales y comandos se registran en el reporte de cierre.
+- 004 agregó tres tablas y dos índices de unicidad de movimiento. Backfill aprobado
   acotado a lotes de un pedido, cantidad abierta exacta y propia orden EMITIDA;
-  aborta ante otras formas. Debe aprobarse ese backfill concreto con el SQL.
+  aborta ante otras formas. Se verificaron dos unidades trasladadas, sin
+  movimientos ni reservas históricas inventadas.
 - Registro de recepción durable en inventario_recepciones (actor/fecha); sin
   agregar columnas a OrdenCompra, para conservar consultas de versiones sin 004.
 
 Actualización posterior: usuario autorizó «004 y validación real». Se aplicó el
 script exacto con respaldo/verificación y pasaron las siete InventarioSupabaseIT
 más trece pruebas de regresión con inventario habilitado. La demo HTTP completó
-recepción/reserva/consumo; la segunda demo de navegador sigue en preparación.
-Ver reportes/2026-10-29-verificacion-inventario.md. Los apartados de preparación
-anteriores no deben leerse como ausencia actual de esquema o de pruebas reales.
+recepción/reserva/consumo. El pedido #51 terminó ENTREGADO desde el navegador,
+con saldo libre/reservado cero; Factura INT-PED-51 se emitió usando el código de
+Tino sin modificar inventario. Ver INVENTARIO_ACEPTACION.md y el reporte de cierre.
+No se declara MVP completo ni se autoriza merge o despliegue público.

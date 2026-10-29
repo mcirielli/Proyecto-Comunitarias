@@ -1,6 +1,6 @@
 @startuml
 !pragma layout smetana
-title Inventario: clases implementadas (SQL 004 aplicada; cierre de aceptación pendiente)
+title Inventario: recepción, reserva y consumo verificados (SQL 004 aplicada)
 skinparam classAttributeIconSize 0
 class PedidoService
 class Pedido

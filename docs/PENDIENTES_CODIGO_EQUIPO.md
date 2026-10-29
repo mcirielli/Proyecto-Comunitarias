@@ -1,5 +1,12 @@
 # Código pendiente y reparto del equipo
 
+Cierre técnico Andy 29/10/2026: C02/C03 y conciliación C01 verificados; pedido #51
+ENTREGADO, libre/reservado cero, INT-PED-51 emitida sin afectar inventario. Andy:
+128 estándar; copia conjunta con Tino: 153 estándar y 35 Supabase aprobadas.
+Quedan revisión humana y merges del equipo, no pendientes funcionales de este
+incremento. Ver reportes/2026-10-29-cierre-inventario-andy.md e INVENTARIO_ACEPTACION.md.
+Los estados de verificación/preparación siguientes se preservan como antecedentes.
+
 Verificación 29/10/2026: SQL 004 aplicado con autorización, 127 pruebas estándar y
 20 Supabase aprobadas. Demo HTTP completa; segundo recorrido de navegador dejó
 pedido #51 EN_PREPARACION (producto #2 libre 0/reservado 4). Falta cerrar ese

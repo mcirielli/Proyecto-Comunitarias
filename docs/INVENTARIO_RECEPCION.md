@@ -1,14 +1,16 @@
 # Inventario y recepción: diagnóstico del incremento Andy
 
 Actualizado al 29/10/2026. Políticas/modelo aprobados; SQL 004 autorizado y aplicado;
-127 pruebas estándar y 20 Supabase aprobadas con inventario habilitado.
-Faltan cierre del recorrido de navegador e integración con Tino. Estado actual y
-datos demo: [verificación](reportes/2026-10-29-verificacion-inventario.md).
+128 pruebas estándar de Andy aprobadas. Validación conjunta: 153 estándar y 35
+Supabase aprobadas con inventario y facturación habilitados. El recorrido #51
+terminó ENTREGADO y se emitió INT-PED-51 sin mover inventario. Estado final y
+datos demo: [cierre](reportes/2026-10-29-cierre-inventario-andy.md) y
+[matriz de aceptación](INVENTARIO_ACEPTACION.md).
 Objetivo: cerrar recepción, reservas y consumo reales sin duplicar State/Strategy
 ni modificar Factura/Pago de Tino. Contrato de políticas en
 [POLITICAS_INVENTARIO_RECEPCION.md](POLITICAS_INVENTARIO_RECEPCION.md).
 
-## Base y lectura
+## Base y lectura al iniciar (antecedente del 27/10)
 
 Worktree propio .cache/andy-inventario, rama andy, base da976fc. Fetch realizado:
 origin/main=da976fc; andy ya contiene main, no requiere merge ni cherry-pick.
@@ -32,7 +34,7 @@ histórica de movimientos de ajuste no autoriza un botón de corrección sin pol
 El reparto genérico del backlog se concreta en Andy C02/C03 e integración necesaria
 de C01; Tino conserva Factura/Pago. No se repite Sprint 1 ni se declara MVP completo.
 
-## Evidencia de Supabase actual, solo lectura
+## Inspección inicial de Supabase, anterior a 004
 
 Inspección JDBC Java 21 sobre la configuración local; transacción readOnly y rollback.
 No se imprimieron conexiones, usuarios, contraseñas, clientes ni precios.
@@ -60,7 +62,7 @@ El ledger relaciona un lote con pedidos y una posible orden nueva, pero su canti
 abierta agregada no dice qué orden histórica abastece qué pedido. No alcanza con
 cambiar RECIBIDA ni restar otra vez las asignaciones actuales.
 
-## Clases existentes y riesgos concretos
+## Clases y riesgos al iniciar, resueltos por este incremento
 
 - PedidoService.cambiarEstado bloquea pedido y delega en Pedido/State; actualmente
   no consulta inventario. Mantener seis estados y precios históricos.
@@ -75,7 +77,10 @@ cambiar RECIBIDA ni restar otra vez las asignaciones actuales.
   dominio. CoberturaCompra y sus asignaciones no modelan transferencia ni consumo.
 - No hay StockService, reservas individuales, recepción API ni UI de inventario.
 
-## Archivos previstos y etapas verificables
+## Plan original de archivos y etapas
+
+Las cinco etapas de este plan se ejecutaron. Su aceptación vigente se encuentra
+en INVENTARIO_ACEPTACION.md; la tabla conserva dependencias del momento de planificar.
 
 | Etapa | Archivos/responsabilidad Andy | Verificación / dependencia |
 |---|---|---|
@@ -95,13 +100,13 @@ API implementada bajo opt-in: GET /api/stock, GET /api/stock/{productoId}/movimi
 actor/fecha persistidos. GET /api/stock/disponibilidad informa habilitación y siempre
 está disponible para Operaciones/Gerencia. Se reutiliza PATCH de pedido;
 sin reserva manual. Entrada inválida 400, sesión ausente 401, rol/CSRF 403,
-inexistente 404 y conflicto de saldo/estado/reintento 409. HTTP con mocks verificado;
-HTTP contra inventario real pendiente de migración y habilitación.
+inexistente 404 y conflicto de saldo/estado/reintento 409. HTTP real y navegador
+verificados; los errores de seguridad se codifican en JSON UTF-8 válido.
 
 Backlog Andy: A-STK diagnóstico/políticas; B-STK saldos/movimientos; C-REC recepción
 total y transferencias; D-RSV reserva/State/consumo; E-INT concurrencia/UI/demo.
-A-STK aprobado; B/C/D implementados en código con validación persistente pendiente;
-E-INT tiene UI/build y pruebas estándar, pero falta esquema, Supabase y demo. Se conserva
+A-STK aprobado y B/C/D/E implementados y verificados con persistencia, concurrencia,
+UI, demo e integración con el código disponible de Tino en copia aislada. Se conserva
 reparto de cuatro frentes del backlog vigente, con propiedad actual Andy/Tino
 indicada en la solicitud. No se reasignan alumnos sin acuerdo.
 
@@ -143,8 +148,9 @@ elimina por IDs en AfterEach; prueba rollback de la operación, no de secuencias
 Si su limpieza falla, detenerse y registrar IDs locales antes de reintentar.
 
 Demo HTTP completa con inventario real: pedido #50 ENTREGADO, demanda #17 y
-Quinteros #18 RECIBIDAS. El recorrido de navegador posterior dejó pedido #51
-EN_PREPARACION y orden #19 RECIBIDA; saldo actual producto #2 libre 0/reservado 4.
-No se considera cerrado ese segundo recorrido.
-Tino: ninguna edición de Factura/Pago ni mensaje a terceros. Main consultado aún no
-contiene ese módulo; dependencia de facturación conjunta pendiente de integrar/verificar.
+Quinteros #18 RECIBIDAS. El recorrido de navegador posterior completó pedido #51
+ENTREGADO y orden #19 RECIBIDA; saldo final producto #2 libre 0/reservado 0.
+Se emitió factura #12 INT-PED-51, ARS 4000; reemitir conservó el ID y no produjo
+movimientos. La copia de integración local 4d310cd combina Andy con Tino cdd6880.
+Factura/Pago se conservaron idénticos a esa rama. Main todavía no incorpora Tino:
+la compatibilidad técnica se verificó sin fusionar PRs ni publicar esa copia.

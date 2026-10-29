@@ -1,5 +1,12 @@
 # Último reporte cerrado
 
+[Cierre técnico de inventario Andy — 29/10/2026](2026-10-29-cierre-inventario-andy.md).
+
+Pedido #51 ENTREGADO y factura INT-PED-51 comprobada sin mover inventario.
+128 pruebas estándar de Andy; copia conjunta con Tino: 153 estándar y 35 Supabase
+aprobadas. Aceptación técnica cerrada; revisión humana y merges del equipo pendientes.
+Los reportes siguientes conservan los estados anteriores de preparación/verificación.
+
 [Verificación de inventario — 29/10/2026](2026-10-29-verificacion-inventario.md).
 
 004 ya fue autorizada/aplicada y pasaron 127 pruebas estándar y 20 Supabase.
