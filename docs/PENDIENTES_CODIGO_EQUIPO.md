@@ -1,5 +1,10 @@
 # Código pendiente y reparto del equipo
 
+Integración 29/10/2026: main incorporó Factura/Pago de Tino mediante PR #7.
+Andy incorpora ese main a65cb17 y resuelve los seis archivos compartidos sin
+descartar Inventario ni Facturación/Pagos. Las referencias siguientes a revisión
+pendiente de Tino son históricas. Ver reportes/2026-10-29-integracion-main-en-andy.md.
+
 Cierre técnico Andy 29/10/2026: C02/C03 y conciliación C01 verificados; pedido #51
 ENTREGADO, libre/reservado cero, INT-PED-51 emitida sin afectar inventario. Andy:
 128 estándar; copia conjunta con Tino: 153 estándar y 35 Supabase aprobadas.
@@ -21,6 +26,12 @@ y [reporte del frente](reportes/2026-10-28-inventario-andy-preparado.md).
 El reparto actual autoriza a Andy como editor de inventario/recepción/PedidoService
 y adaptación indispensable de C01; Tino conserva Factura/Pago. Las tablas originales
 de planificación siguientes se preservan como antecedente, no como cierre del módulo.
+
+C06 implementado en tino y verificado, pendiente revisión PR: emisión interna,
+pagos parciales/saldo, idempotencia y roles. 003 aplicada con autorización;
+136 pruebas estándar y 20 Supabase aprobadas. No modifica integración de inventario
+que desarrolla Andy. Evidencia: reportes/2026-10-28-facturacion-pagos-tino.md.
+
 
 Actualizado: 27/10/2026, después de Pedido + State.
 C01 implementado y verificado con Supabase: migración 002 aplicada con autorización,
@@ -57,7 +68,7 @@ Los cambios de estado todavía no reservan, descuentan ni comprueban inventario.
 | C03 / P0 | Recepción de compras | RecepcionService o caso de uso acotado de compras/inventario; repositorios de C01/C02; API y vista de recepción | Recibir orden ingresa stock y movimiento atómicamente; repetir no duplica; parciales/excedentes según regla revisada | C01/C02; dueño de integración definido abajo |
 | C04 / P1 | Producto-proveedor e historial de precios | domain/ProductoProveedor e historial; repositorios; PrecioProveedorService; API/DTO y vista de vínculo/precios; migración solo aprobada | Producto mantiene ID con varios proveedores; código/condiciones por vínculo; nuevo precio conserva anterior; consulta actual/histórica | Revisar extensión del esquema: precio_compra actual no guarda historia |
 | C05 / P1 | Gestión y consulta de oferta semanal integrada en main (PR #4) | Extender Oferta/OfertaRepository; OfertaService, DTO/controller; OfertaPage para Cliente y gestión Operaciones | Armar/publicar con fechas/precio de venta; Cliente solo ve ofertas publicadas vigentes sin costos; se reutilizan entidades existentes; fuera de vigencia no permite pedido | Productos existentes; política aprobada documentada en OFERTAS_SEMANALES.md |
-| C06 / P1 | Factura interna y pagos | domain/Factura, Pago; repositorios; FacturacionService/PagoService; DTO/controller y vistas | Solo factura pedido entregado; una factura por pedido; importe calculado desde detalles históricos; pagos/saldo válidos; transacciones y roles | Pedido/State existentes; política de pagos/numeración |
+| C06 / P1 | Factura interna y pagos implementados; revisión PR pendiente | domain/Factura, Pago; repositorios; FacturacionService/PagoService; DTO/controller y vistas | Solo factura pedido entregado; una factura por pedido; importe calculado desde detalles históricos; pagos/saldo válidos; transacciones y roles | Pedido/State existentes; política de pagos/numeración |
 | C07 / P1 | Resumen gerencial de ventas/compras | ReporteService, consultas de repositorio y DTO/controller; ReportesPage | Totales reales por período, reconciliados con factura/orden; no confundir pago con venta | C01/C06; acordar base de cálculo |
 | C08 / P0 transversal | Pruebas, integración y defensa | Tests por módulo; docs/diagramas; contratos API; guía demo | State y Strategy explicables, tests de reglas y permisos, flujo completo con BD, UML coincide con clases, ejecución limpia y demo de 5 min | Durante cada tarea; cierre después de integración |
 

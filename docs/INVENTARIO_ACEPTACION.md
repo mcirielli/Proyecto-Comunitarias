@@ -43,9 +43,10 @@ idénticos a la rama de Tino en la copia de validación.
 
 ## Ejecución y límites
 
-- Andy se verifica contra main da976fc. La validación conjunta utiliza una copia
-  local separada con origin/tino cdd6880. No incorpora esos commits a Andy ni
-  fusiona PRs a main.
+- La base inicial de Andy fue main da976fc. La validación conjunta utilizó una
+  copia separada con Tino cdd6880. Posteriormente main incorporó Tino por PR #7;
+  Andy integra ese main a65cb17 con la misma resolución funcional verificada.
+  No se fusiona la PR de Andy hacia main. Ver el reporte de integración más reciente.
 - Las pruebas de inventario real mantienen app.inventario.enabled=true; no se
   apaga inventario para acreditar el circuito. Fixtures con UUID propios y limpieza
   por IDs; concurrencia mediante transacciones/conexiones distintas.

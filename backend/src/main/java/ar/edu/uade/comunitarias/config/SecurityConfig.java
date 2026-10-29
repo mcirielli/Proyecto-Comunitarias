@@ -30,6 +30,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/stock", "/api/stock/**").hasAnyRole("OPERACIONES", "GERENCIA")
                         .requestMatchers("/api/stock", "/api/stock/**").denyAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/facturas/contexto").hasRole("OPERACIONES")
+                        .requestMatchers(HttpMethod.GET, "/api/facturas", "/api/facturas/**", "/api/pagos").hasAnyRole("CLIENTE", "OPERACIONES", "GERENCIA")
+                        .requestMatchers(HttpMethod.POST, "/api/facturas", "/api/pagos").hasRole("OPERACIONES")
+                        .requestMatchers("/api/facturas", "/api/facturas/**", "/api/pagos", "/api/pagos/**").denyAll()
                         .requestMatchers(HttpMethod.POST, "/api/compras/*/autorizar").hasRole("GERENCIA")
                         .requestMatchers(HttpMethod.POST, "/api/compras/**").hasRole("OPERACIONES")
                         .requestMatchers(HttpMethod.GET, "/api/compras/contexto").hasRole("OPERACIONES")

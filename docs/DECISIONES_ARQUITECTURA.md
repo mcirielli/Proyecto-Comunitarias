@@ -1,5 +1,14 @@
 # Decisiones de arquitectura
 
+## Integración de main en Andy — 29/10/2026
+
+El usuario solicitó resolver los conflictos que impedían integrar la PR de Andy.
+Se incorpora origin/main a65cb17 en andy, con historial conservado. Main ya incluye
+Factura/Pago de Tino por PR #7. La resolución es aditiva en rutas/permisos, flags,
+navegación y documentación; no modifica reglas aprobadas ni archivos propios de
+Factura/Pago. No autoriza fusionar la PR #6 a main, ejecutar migraciones o publicar
+servicios. Evidencia: reportes/2026-10-29-integracion-main-en-andy.md.
+
 ## Ejecución autorizada de inventario 004 — 28/10/2026
 
 Tras revisar el SQL exacto, el usuario respondió «Autorizar 004 y validación real».
@@ -24,6 +33,21 @@ respaldo y habilitación de inventario requieren aprobación posterior sobre scr
 exacto. Código preparado detrás de opt-in apagado; aceptación Supabase/concurrencia
 y demo todavía pendientes. No autoriza cancelaciones/ajustes manuales, cambios
 de Factura/Pago de Tino, despliegue o merge. La aprobación histórica 002 no se amplía.
+
+## Facturación interna y pagos — aprobación 27/10, cierre 28/10/2026
+
+El usuario autorizó C06 en tino, commit/push y PR a main, sin merge/auto-merge.
+Aprobó la política completa FAC/PAG: INT-PED-{pedidoId}, solo ENTREGADO, ARS y
+precio histórico, parciales sin sobrepago, PENDIENTE/PAGADA y factura cero PAGADA
+sin pago ficticio; medios manuales EFECTIVO/TRANSFERENCIA/TARJETA, referencia
+opcional y fecha servidor. Sin edición/anulación/devolución. Operaciones escribe,
+Cliente consulta solo propias y Gerencia consulta. Reintentos recuperan la misma
+factura/pago; clave de pago con otro contenido devuelve conflicto. Sin snapshot
+fiscal de identidad. Reglas y participantes en POLITICAS_FACTURACION_PAGOS.md.
+Autorizó específicamente aplicar únicamente 003 (UUID único de pagos): ejecutada
+con transacción y verificación post-commit. No se aplicó SQL de Andy ni se alteraron
+Pedido/State, stock o compras. Activación opt-in independiente; no despliegue público.
+
 
 ## Cierre de Compras y autorización de integración — 27/10/2026
 

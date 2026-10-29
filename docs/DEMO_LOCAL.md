@@ -22,8 +22,9 @@ compose.inventario.yaml; no ejecutar migraciones al arrancar ni cargar stock fic
 Evidencia persistida: pedido #51 ENTREGADO, orden #19 RECIBIDA, producto #2 libre
 0/reservado 0 y factura #12 INT-PED-51 por ARS 4000. Para repetir, crear otro
 pedido: no retroceder ni borrar estos registros. Las órdenes antiguas #3/#4
-permanecen intactas. La copia conjunta está en localhost:8085; Factura/Pago sigue
-perteneciendo a Tino y su merge formal se decide por el equipo.
+permanecen intactas. La copia conjunta está en localhost:8085. Factura/Pago sigue
+perteneciendo a Tino, ya integrado en main por PR #7 y conservado al incorporar
+main en Andy. El merge de la PR de Andy hacia main se decide por el equipo.
 
 ## Circuito inicial y cuentas demo
 

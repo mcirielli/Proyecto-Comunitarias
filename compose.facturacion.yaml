@@ -1,0 +1,5 @@
+# Opt-in: requiere migración 003 aplicada con aprobación en esta base.
+services:
+  backend:
+    environment:
+      FACTURACION_ENABLED: "true"

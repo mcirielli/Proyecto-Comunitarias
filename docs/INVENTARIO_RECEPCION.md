@@ -152,5 +152,7 @@ Quinteros #18 RECIBIDAS. El recorrido de navegador posterior completó pedido #5
 ENTREGADO y orden #19 RECIBIDA; saldo final producto #2 libre 0/reservado 0.
 Se emitió factura #12 INT-PED-51, ARS 4000; reemitir conservó el ID y no produjo
 movimientos. La copia de integración local 4d310cd combina Andy con Tino cdd6880.
-Factura/Pago se conservaron idénticos a esa rama. Main todavía no incorpora Tino:
-la compatibilidad técnica se verificó sin fusionar PRs ni publicar esa copia.
+Factura/Pago se conservaron idénticos a esa rama. Después, main incorporó Tino
+mediante PR #7 (a65cb17). Andy integra ahora ese main conservando ambos frentes;
+ver reportes/2026-10-29-integracion-main-en-andy.md. La PR de Andy hacia main no
+se fusiona automáticamente.
