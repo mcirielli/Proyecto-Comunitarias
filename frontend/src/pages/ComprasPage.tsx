@@ -6,7 +6,7 @@ import type { Compra, ContextoCompras } from '../services/compras'
 import './compras.css'
 
 const dinero = (n: number) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(n)
-const fecha = (s: string) => new Date(s).toLocaleString('es-AR')
+const fecha = (s: string) => new Date(s).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
 export function ComprasPage({ gerencia }: { gerencia: boolean }) {
   const [ordenes, setOrdenes] = useState<Compra[]>([])
   const [contexto, setContexto] = useState<ContextoCompras>({ proveedores: [], pedidos: [] })

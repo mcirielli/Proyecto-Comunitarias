@@ -49,11 +49,13 @@ public class SecurityConfig {
                 .exceptionHandling(errors -> errors
                         .authenticationEntryPoint((request, response, exception) -> {
                             response.setStatus(401);
+                            response.setCharacterEncoding("UTF-8");
                             response.setContentType("application/json");
                             response.getWriter().write("{\"error\":\"Sesión requerida\"}");
                         })
                         .accessDeniedHandler((request, response, exception) -> {
                             response.setStatus(403);
+                            response.setCharacterEncoding("UTF-8");
                             response.setContentType("application/json");
                             response.getWriter().write("{\"error\":\"Acceso denegado\"}");
                         }))
@@ -62,12 +64,14 @@ public class SecurityConfig {
             http.formLogin(form -> form.loginProcessingUrl("/api/auth/login")
                     .usernameParameter("email")
                     .successHandler((request, response, authentication) -> {
+                        response.setCharacterEncoding("UTF-8");
                         response.setContentType("application/json");
                         response.setHeader("Cache-Control", "no-store");
                         json.writeValue(response.getWriter(), ((UsuarioPrincipal) authentication.getPrincipal()).identity());
                     })
                     .failureHandler((request, response, exception) -> {
                         response.setStatus(401);
+                        response.setCharacterEncoding("UTF-8");
                         response.setContentType("application/json");
                         response.getWriter().write("{\"error\":\"Credenciales inválidas\"}");
                     }).permitAll());

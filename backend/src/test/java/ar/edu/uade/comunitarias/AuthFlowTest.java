@@ -37,6 +37,14 @@ class AuthFlowTest {
     @Autowired ObjectMapper json;
     @LocalServerPort int port;
     HttpClient client;
+    @Test void erroresDeSesionYLoginSonJsonUtf8() throws Exception {
+        var sinSesion=get("/api/stock");assertEquals(401,sinSesion.statusCode());
+        assertTrue(sinSesion.headers().firstValue("content-type").orElse("").toLowerCase().contains("charset=utf-8"));
+        assertEquals("Sesión requerida",json.readTree(sinSesion.body()).get("error").asText());
+        account("OPERACIONES",true,true);
+        var invalido=post("/api/auth/login","email=demo%40example.org&password=wrong",csrf());
+        assertEquals(401,invalido.statusCode());assertEquals("Credenciales inválidas",json.readTree(invalido.body()).get("error").asText());
+    }
     @Test void inventarioConservaRolesYCsrf() throws Exception {
         assertEquals(401,get("/api/stock").statusCode());
         account("CLIENTE",true,true);assertEquals(200,login(csrf()).statusCode());

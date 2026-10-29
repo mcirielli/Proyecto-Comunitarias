@@ -8,6 +8,7 @@ type Pedido = { id: number; cliente: string; fecha: string; estado: string; sigu
 const estados = ['RECIBIDO', 'CONFIRMADO', 'EN_PREPARACION', 'PREPARADO', 'DESPACHADO', 'ENTREGADO']
 const label = (value: string) => value.replaceAll('_', ' ').toLocaleLowerCase('es-AR')
 const money = (value: number) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(value)
+const fecha = (value: string) => new Date(value).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
 
 function EstadoActions({ pedido, busy, onChange }: { pedido: Pedido; busy: boolean; onChange: (id: number, state: string) => void }) {
   const [destino, setDestino] = useState(pedido.siguienteEstado ?? '')
@@ -80,9 +81,9 @@ export function PedidosPage({ operaciones, ofertaInicial }: { operaciones: boole
       <button className="action mt-5" disabled={busy || !oferta?.productos.length}>{busy ? 'Registrando…' : 'Registrar pedido'}</button>
     </form></section>}
     <section className="surface table-panel"><div className="panel-heading"><div><h2>{operaciones ? 'Pedidos registrados' : 'Mis pedidos'}</h2><p className="muted">Estado y detalle de cada operación</p></div><button className="theme-switch" disabled={busy || loading} onClick={() => {setError(''); setAttempt(n => n + 1)}}>Actualizar</button></div>
-      {loading ? <p className="empty-state" role="status">Consultando pedidos…</p> : pedidos.length === 0 ? <p className="empty-state muted">Todavía no hay pedidos registrados.</p> : pedidos.map(pedido => <article className="order-card" key={pedido.id}><div className="view-toolbar"><div><h3 className="font-semibold">Pedido #{pedido.id} · {pedido.cliente}</h3><p className="muted text-sm mt-2">{new Date(pedido.fecha).toLocaleString('es-AR')} · {money(pedido.total)}</p></div><span className="state-badge status-available capitalize">{label(pedido.estado)}</span></div>
+      {loading ? <p className="empty-state" role="status">Consultando pedidos…</p> : pedidos.length === 0 ? <p className="empty-state muted">Todavía no hay pedidos registrados.</p> : pedidos.map(pedido => <article className="order-card" key={pedido.id}><div className="view-toolbar"><div><h3 className="font-semibold">Pedido #{pedido.id} · {pedido.cliente}</h3><p className="muted text-sm mt-2">{fecha(pedido.fecha)} · {money(pedido.total)}</p></div><span className="state-badge status-available capitalize">{label(pedido.estado)}</span></div>
         <details><summary className="accent">Ver productos y precios</summary><div className="table-scroll mt-4"><table><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio histórico</th><th>Subtotal</th></tr></thead><tbody>{pedido.detalles.map(d => <tr key={d.productoId}><td>{d.producto}</td><td>{d.cantidad}</td><td>{money(d.precioUnitario)}</td><td>{money(d.subtotal)}</td></tr>)}</tbody></table></div></details>
-        {pedido.fechaDespacho && <p className="muted text-sm mt-3">Despachado: {new Date(pedido.fechaDespacho).toLocaleString('es-AR')}</p>}{pedido.fechaEntrega && <p className="muted text-sm mt-2">Entregado: {new Date(pedido.fechaEntrega).toLocaleString('es-AR')}</p>}
+        {pedido.fechaDespacho && <p className="muted text-sm mt-3">Despachado: {fecha(pedido.fechaDespacho)}</p>}{pedido.fechaEntrega && <p className="muted text-sm mt-2">Entregado: {fecha(pedido.fechaEntrega)}</p>}
         {operaciones && <div className="mt-5"><p className="muted text-sm">Siguiente permitido: {pedido.siguienteEstado ? label(pedido.siguienteEstado) : 'ninguno, pedido finalizado'}</p><EstadoActions key={pedido.estado} pedido={pedido} busy={busy} onChange={cambiar} /></div>}
       </article>)}
     </section>
