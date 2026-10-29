@@ -34,6 +34,7 @@ class InventarioSupabaseIT {
     @Autowired PedidoService pedidos;
     @Autowired CompraService compras;
     @Autowired StockRepository stocks;
+    @Autowired StockConsultaService consultas;
     @Autowired OrdenCompraRepository ordenes;
     @SpyBean MovimientoStockRepository movimientos;
     final SessionResponse ops=new SessionResponse(-2L,"Operaciones","operaciones@demo.local","OPERACIONES");
@@ -118,6 +119,14 @@ class InventarioSupabaseIT {
         assertThrows(ReglaNegocioException.class,()->recepcion.recibir(f.orden(),ops));
         assertThrows(ar.edu.uade.comunitarias.state.TransicionInvalidaException.class,()->estado(f.pedidoA(),EstadoPedido.ENTREGADO));
         assertEquals(3,contar("movimientos_stock"));tx().executeWithoutResult(s->assertEquals(0,stocks.findByProductoId(f.producto()).orElseThrow().existencia()));
+        tx().executeWithoutResult(s->{
+            var historial=movimientos.findByProductoIdOrderByFechaDescIdDesc(f.producto(),org.springframework.data.domain.PageRequest.of(0,100));
+            assertEquals(Set.of("INGRESO","RESERVA","EGRESO"),historial.stream().map(MovimientoStock::getTipo).collect(java.util.stream.Collectors.toSet()));
+            historial.forEach(m->{assertEquals(5,m.getCantidad());assertNotNull(m.getFecha());assertEquals(f.producto(),m.getProductoId());
+                if(m.getTipo().equals("INGRESO")){assertEquals(f.orden(),m.getOrdenId());assertNull(m.getPedidoId());}
+                else{assertEquals(f.pedidoA(),m.getPedidoId());assertNull(m.getOrdenId());}});
+            assertEquals(ops.email(),em.find(RecepcionCompra.class,f.orden()).getActor());
+        });
     }
     @Test void conciliaDosGruposSinReutilizarNiDescontarDosVeces(){
         var f=crear(4,7,5,6);
@@ -144,5 +153,73 @@ class InventarioSupabaseIT {
         Long segundo=tx().execute(s->{var p=new Producto("Inventario IT "+UUID.randomUUID(),null,null,"unidad");em.persist(p);em.flush();em.createNativeQuery("insert into pedido_detalle(pedido_id,producto_id,cantidad,precio_unitario) values (:pedido,:producto,1,10)").setParameter("pedido",f.pedidoA()).setParameter("producto",p.getId()).executeUpdate();return p.getId();});
         try{assertThrows(ReglaNegocioException.class,()->estado(f.pedidoA(),EstadoPedido.EN_PREPARACION));assertEquals(0,contar("reservas_pedido"));tx().executeWithoutResult(s->assertEquals(3,stocks.findByProductoId(f.producto()).orElseThrow().getDisponible()));}
         finally{tx().executeWithoutResult(s->{em.createNativeQuery("delete from pedido_detalle where producto_id=:p").setParameter("p",segundo).executeUpdate();em.createNativeQuery("delete from productos where id=:p").setParameter("p",segundo).executeUpdate();});}
+    }
+    @Test void consultaDeFilaAusenteEsCeroSinCrearStock(){
+        var f=crear(0,2,1,2);
+        var saldo=consultas.listar().stream().filter(s->s.productoId().equals(f.producto())).findFirst().orElseThrow();
+        assertEquals(0,saldo.disponible());assertEquals(0,saldo.reservado());assertEquals(0,saldo.existencia());assertEquals(0,contar("stock"));
+        assertTrue(consultas.movimientos(f.producto(),0).isEmpty());assertEquals(0,contar("movimientos_stock"));
+        assertThrows(IllegalArgumentException.class,()->consultas.movimientos(f.producto(),-1));
+    }
+    @Test void productoDesactivadoCompletaRecepcionYDespachoHistoricos(){
+        var f=crear(0,2,1,2);
+        tx().executeWithoutResult(s->em.createNativeQuery("update productos set activo=false where id=:p").setParameter("p",f.producto()).executeUpdate());
+        recepcion.recibir(f.orden(),ops);
+        for(var e:List.of(EstadoPedido.EN_PREPARACION,EstadoPedido.PREPARADO,EstadoPedido.DESPACHADO,EstadoPedido.ENTREGADO))estado(f.pedidoA(),e);
+        tx().executeWithoutResult(s->{assertFalse(em.find(Producto.class,f.producto()).getActivo());assertEquals(EstadoPedido.ENTREGADO,em.find(Pedido.class,f.pedidoA()).getEstado());assertEquals(0,stocks.findByProductoId(f.producto()).orElseThrow().existencia());});
+    }
+    @Test void quinterosSoloSeRecibeDespuesDeAutorizarYEmitir(){
+        var f=crear(0,1,1,1);
+        Long id=tx().execute(s->{var o=new OrdenCompra(em.find(Proveedor.class,f.proveedor()),TipoCompra.STOCK_QUINTEROS,UUID.randomUUID(),ops.email(),Instant.now());o.agregar(em.find(Producto.class,f.producto()),4,BigDecimal.ONE);em.persist(o);em.flush();return o.getId();});
+        assertThrows(ReglaNegocioException.class,()->recepcion.recibir(id,ops));
+        compras.autorizar(id,new SessionResponse(-3L,"Gerencia","gerencia@demo.local","GERENCIA"));
+        assertThrows(ReglaNegocioException.class,()->recepcion.recibir(id,ops));
+        assertEquals(0,contar("stock"));assertEquals(0,contar("movimientos_stock"));
+        compras.emitir(id,ops);recepcion.recibir(id,ops);
+        tx().executeWithoutResult(s->assertEquals(4,stocks.findByProductoId(f.producto()).orElseThrow().getDisponible()));
+        assertThrows(ReglaNegocioException.class,()->recepcion.recibir(id,ops));assertEquals(1,contar("movimientos_stock"));
+    }
+    @Test void ordenPendienteLegadaNoSeConvierteNiSeRecibe(){
+        var f=crear(0,1,1,2);
+        tx().executeWithoutResult(s->em.createNativeQuery("update ordenes_compra set estado='PENDIENTE' where id=:id").setParameter("id",f.orden()).executeUpdate());
+        assertThrows(ReglaNegocioException.class,()->recepcion.recibir(f.orden(),ops));
+        assertEquals(0,contar("stock"));assertEquals(0,contar("movimientos_stock"));
+        tx().executeWithoutResult(s->assertEquals(EstadoCompra.PENDIENTE,ordenes.findById(f.orden()).orElseThrow().getEstado()));
+    }
+    @Test void pedidosAvanzadosLegadosNoInventanReservasNiEgresos(){
+        var f=crear(0,2,1,2);
+        var origenes=List.of(EstadoPedido.EN_PREPARACION,EstadoPedido.PREPARADO,EstadoPedido.DESPACHADO);
+        var destinos=List.of(EstadoPedido.PREPARADO,EstadoPedido.DESPACHADO,EstadoPedido.ENTREGADO);
+        for(int i=0;i<origenes.size();i++){
+            var origen=origenes.get(i);var destino=destinos.get(i);
+            tx().executeWithoutResult(s->em.createNativeQuery("update pedidos set estado=:estado where id=:id").setParameter("estado",origen.name()).setParameter("id",f.pedidoA()).executeUpdate());
+            assertThrows(ReglaNegocioException.class,()->estado(f.pedidoA(),destino));
+            tx().executeWithoutResult(s->assertEquals(origen,em.find(Pedido.class,f.pedidoA()).getEstado()));
+        }
+        tx().executeWithoutResult(s->em.createNativeQuery("update pedidos set estado='ENTREGADO' where id=:id").setParameter("id",f.pedidoA()).executeUpdate());
+        assertTrue(pedidos.listar(ops).stream().anyMatch(p->p.id().equals(f.pedidoA())&&p.estado()==EstadoPedido.ENTREGADO));
+        assertEquals(0,contar("stock"));assertEquals(0,contar("reservas_pedido"));assertEquals(0,contar("movimientos_stock"));
+    }
+    @Test void desbordamientoDeRecepcionRevierteOrdenYRegistro(){
+        var f=crear(Integer.MAX_VALUE,1,1,1);
+        assertThrows(ArithmeticException.class,()->recepcion.recibir(f.orden(),ops));
+        tx().executeWithoutResult(s->{assertEquals(Integer.MAX_VALUE,stocks.findByProductoId(f.producto()).orElseThrow().existencia());assertEquals(EstadoCompra.EMITIDA,ordenes.findById(f.orden()).orElseThrow().getEstado());assertNull(em.find(RecepcionCompra.class,f.orden()));});
+        assertEquals(0,contar("movimientos_stock"));
+    }
+    @Test void falloAlDespacharRevierteConsumoSaldoYEstado(){
+        var f=crear(3,3,1,1);estado(f.pedidoA(),EstadoPedido.EN_PREPARACION);estado(f.pedidoA(),EstadoPedido.PREPARADO);
+        doThrow(new IllegalStateException("Fallo controlado egreso IT")).when(movimientos).save(argThat(m->m!=null&&"EGRESO".equals(m.getTipo())));
+        assertThrows(IllegalStateException.class,()->estado(f.pedidoA(),EstadoPedido.DESPACHADO));reset(movimientos);
+        tx().executeWithoutResult(s->{var saldo=stocks.findByProductoId(f.producto()).orElseThrow();assertEquals(0,saldo.getDisponible());assertEquals(3,saldo.getReservado());assertEquals(EstadoPedido.PREPARADO,em.find(Pedido.class,f.pedidoA()).getEstado());assertEquals(0,((Number)em.createNativeQuery("select count(*) from reservas_pedido where pedido_id=:id and consumida=true").setParameter("id",f.pedidoA()).getSingleResult()).intValue());});
+        assertEquals(1,contar("movimientos_stock"));
+    }
+    @Test void recepcionDeVariasLineasNoDejaIngresosParciales(){
+        var f=crear(0,2,1,2);
+        Long segundo=tx().execute(s->{var p=new Producto("Inventario IT "+UUID.randomUUID(),null,null,"unidad");em.persist(p);em.flush();var saldo=new Stock(p.getId());saldo.ingresar(Integer.MAX_VALUE);em.persist(saldo);em.createNativeQuery("insert into orden_compra_detalle(orden_compra_id,producto_id,cantidad,precio_unitario) values (:o,:p,1,1)").setParameter("o",f.orden()).setParameter("p",p.getId()).executeUpdate();return p.getId();});
+        try{
+            assertThrows(ArithmeticException.class,()->recepcion.recibir(f.orden(),ops));
+            assertEquals(0,contar("stock"));assertEquals(0,contar("movimientos_stock"));
+            tx().executeWithoutResult(s->{assertEquals(Integer.MAX_VALUE,stocks.findByProductoId(segundo).orElseThrow().existencia());assertEquals(EstadoCompra.EMITIDA,ordenes.findById(f.orden()).orElseThrow().getEstado());assertNull(em.find(RecepcionCompra.class,f.orden()));});
+        }finally{tx().executeWithoutResult(s->{for(String sql:List.of("delete from movimientos_stock where producto_id=:p","delete from orden_compra_detalle where producto_id=:p","delete from stock where producto_id=:p","delete from productos where id=:p"))em.createNativeQuery(sql).setParameter("p",segundo).executeUpdate();});}
     }
 }
