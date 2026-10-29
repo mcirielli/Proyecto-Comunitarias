@@ -1,5 +1,15 @@
 # Decisiones de arquitectura
 
+## Ejecución autorizada de inventario 004 — 28/10/2026
+
+Tras revisar el SQL exacto, el usuario respondió «Autorizar 004 y validación real».
+Se aplicó únicamente 004, con respaldo public y verificación de RLS/permisos;
+se reconstruyeron dos unidades de cobertura demostrable sin inventar stock ni
+movimientos históricos. Esto resuelve la autorización pendiente del apartado
+anterior de preparación, no autoriza reejecutar migraciones, merge o producción.
+Siete pruebas nuevas de inventario y trece de regresión Supabase aprobadas.
+Estado actualizado: reportes/2026-10-29-verificacion-inventario.md.
+
 ## Inventario y recepción Andy — aprobación del 27/10/2026
 
 Usuario respondió «Aprobar políticas y modelo propuestos» al paquete de

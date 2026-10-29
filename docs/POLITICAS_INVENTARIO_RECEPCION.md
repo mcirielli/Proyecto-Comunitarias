@@ -1,7 +1,8 @@
 # Políticas de inventario y recepción
 
 Fecha inicial: 27/10/2026, Argentina; ejecución continúa el 28/10.
-Estado: POLÍTICAS Y MODELO APROBADOS; código preparado, persistencia pendiente.
+Estado al 29/10/2026: POLÍTICAS/MODELO Y SQL APROBADOS; 004 aplicada,
+persistencia/concurrencia verificadas. Cierre de aceptación y Tino pendientes.
 El usuario respondió «Aprobar políticas y modelo propuestos» a la consulta agrupada
 de esta sesión. Autoriza implementar y preparar 004, no ejecutarla en Supabase.
 
@@ -127,5 +128,9 @@ de Stock por sí solo no sirve. GET nunca inserta.
 - Registro de recepción durable en inventario_recepciones (actor/fecha); sin
   agregar columnas a OrdenCompra, para conservar consultas de versiones sin 004.
 
-La autorización de SQL, respaldo/verificación y aceptación real siguen pendientes.
-No hay recepción/reserva/ledger real aprobados como circuito operativo completo.
+Actualización posterior: usuario autorizó «004 y validación real». Se aplicó el
+script exacto con respaldo/verificación y pasaron las siete InventarioSupabaseIT
+más trece pruebas de regresión con inventario habilitado. La demo HTTP completó
+recepción/reserva/consumo; la segunda demo de navegador sigue en preparación.
+Ver reportes/2026-10-29-verificacion-inventario.md. Los apartados de preparación
+anteriores no deben leerse como ausencia actual de esquema o de pruebas reales.

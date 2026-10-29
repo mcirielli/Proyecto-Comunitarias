@@ -1,5 +1,11 @@
 # Código pendiente y reparto del equipo
 
+Verificación 29/10/2026: SQL 004 aplicado con autorización, 127 pruebas estándar y
+20 Supabase aprobadas. Demo HTTP completa; segundo recorrido de navegador dejó
+pedido #51 EN_PREPARACION (producto #2 libre 0/reservado 4). Falta cerrar ese
+recorrido y la integración Factura/Pago de Tino. El estado de preparación del
+28/10 que sigue es histórico. Ver reportes/2026-10-29-verificacion-inventario.md.
+
 Avance Andy 28/10/2026: C02/C03 e integración de cobertura preparados en código,
 políticas/modelo aprobados; 127 pruebas estándar, build frontend y Docker correctos.
 Propuesta 004 pendiente de autorización específica/aplicación. Sin aceptación

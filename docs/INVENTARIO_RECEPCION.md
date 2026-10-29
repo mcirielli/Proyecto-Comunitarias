@@ -1,7 +1,9 @@
 # Inventario y recepción: diagnóstico del incremento Andy
 
-27–28/10/2026. Políticas/modelo aprobados; código compilado y pruebas estándar
-aprobadas. Aplicación de DDL, activación y pruebas persistentes pendientes.
+Actualizado al 29/10/2026. Políticas/modelo aprobados; SQL 004 autorizado y aplicado;
+127 pruebas estándar y 20 Supabase aprobadas con inventario habilitado.
+Faltan cierre del recorrido de navegador e integración con Tino. Estado actual y
+datos demo: [verificación](reportes/2026-10-29-verificacion-inventario.md).
 Objetivo: cerrar recepción, reservas y consumo reales sin duplicar State/Strategy
 ni modificar Factura/Pago de Tino. Contrato de políticas en
 [POLITICAS_INVENTARIO_RECEPCION.md](POLITICAS_INVENTARIO_RECEPCION.md).
@@ -103,7 +105,13 @@ E-INT tiene UI/build y pruebas estándar, pero falta esquema, Supabase y demo. S
 reparto de cuatro frentes del backlog vigente, con propiedad actual Andy/Tino
 indicada en la solicitud. No se reasignan alumnos sin acuerdo.
 
-## Activación, recuperación y verificación pendiente
+## Activación y recuperación
+
+004 fue aplicada una sola vez con autorización expresa y respaldo, después de la
+preparación descrita aquí. No reejecutarla. La base tiene las tres tablas nuevas,
+RLS y permisos verificados. La ejecución de validación habilitó inventario con el
+override opt-in; el valor general continúa false para otros entornos sin migrar.
+Las instrucciones preventivas siguientes se conservan para otros entornos.
 
 No activar compose.inventario.yaml antes de ejecutar y verificar 004 con aprobación
 específica. app.inventario.enabled permanece false; la UI informa preparación pendiente
@@ -134,9 +142,9 @@ concurrencia. Los confirma temporalmente para compartirlos entre conexiones y lo
 elimina por IDs en AfterEach; prueba rollback de la operación, no de secuencias.
 Si su limpieza falla, detenerse y registrar IDs locales antes de reintentar.
 
-Demo pendiente: oferta/pedido CONFIRMADO con faltante → demanda → recepción total
-→ EN_PREPARACION/reserva → PREPARADO → DESPACHADO/consumo → ENTREGADO sin efecto
-adicional; luego Quinteros con Gerencia/Operaciones y recepción. No se ejecutó
-esta demo con inventario real ni se dejaron datos nuevos en Supabase en esta ventana.
+Demo HTTP completa con inventario real: pedido #50 ENTREGADO, demanda #17 y
+Quinteros #18 RECIBIDAS. El recorrido de navegador posterior dejó pedido #51
+EN_PREPARACION y orden #19 RECIBIDA; saldo actual producto #2 libre 0/reservado 4.
+No se considera cerrado ese segundo recorrido.
 Tino: ninguna edición de Factura/Pago ni mensaje a terceros. Main consultado aún no
 contiene ese módulo; dependencia de facturación conjunta pendiente de integrar/verificar.

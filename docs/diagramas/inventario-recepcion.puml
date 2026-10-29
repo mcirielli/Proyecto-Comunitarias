@@ -1,6 +1,6 @@
 @startuml
 !pragma layout smetana
-title Inventario: clases implementadas (activación pendiente de SQL 004)
+title Inventario: clases implementadas (SQL 004 aplicada; cierre de aceptación pendiente)
 skinparam classAttributeIconSize 0
 class PedidoService
 class Pedido
