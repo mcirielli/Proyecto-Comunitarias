@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { compras } from '../services/compras'
+import { consultarDisponibilidadInventario } from '../services/inventario'
 import type { Compra, ContextoCompras } from '../services/compras'
 import './compras.css'
 
@@ -10,6 +11,7 @@ export function ComprasPage({ gerencia }: { gerencia: boolean }) {
   const [ordenes, setOrdenes] = useState<Compra[]>([])
   const [contexto, setContexto] = useState<ContextoCompras>({ proveedores: [], pedidos: [] })
   const [habilitado, setHabilitado] = useState(false)
+  const [inventarioHabilitado, setInventarioHabilitado] = useState(false)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -25,6 +27,7 @@ export function ComprasPage({ gerencia }: { gerencia: boolean }) {
     const estado = await compras.disponibilidad()
     setHabilitado(estado.habilitado)
     if (!estado.habilitado) { setMensaje(estado.mensaje); return }
+    setInventarioHabilitado((await consultarDisponibilidadInventario()).habilitado)
     const [lista, ctx] = await Promise.all([compras.listar(), gerencia ? Promise.resolve(null) : compras.contexto()])
     setOrdenes(lista)
     if (ctx) setContexto(ctx)
@@ -62,7 +65,7 @@ export function ComprasPage({ gerencia }: { gerencia: boolean }) {
       <button className="theme-switch" disabled={busy} onClick={() => { setError(''); setBusy(true); cargar().catch(e => setError((e as Error).message)).finally(() => setBusy(false)) }}>Actualizar</button></section>
     {error && <p role="alert" className="notice error-text">{error}</p>}
     {mensaje && <p role="status" className="notice">{mensaje}</p>}
-    {habilitado && <p className="notice">Circuito de demo: las coberturas se conservan. Recepción y liberación requieren integrar inventario.</p>}
+    {habilitado && <p className="notice">{inventarioHabilitado ? 'Las coberturas se concilian con el inventario. Registrá la recepción total desde Inventario y recepción.' : 'Circuito de demo: las coberturas se conservan. Inventario pendiente de habilitación.'}</p>}
     {habilitado && !gerencia && <section className="surface compras-form"><h2>Nueva operación</h2><form onSubmit={crear}>
       <fieldset disabled={busy}><legend>Origen de compra</legend><div className="compras-fields">
         <label>Tipo<select className="field" value={tipo} onChange={e => setTipo(e.target.value as typeof tipo)}><option value="demanda">Demanda de clientes</option><option value="quinteros">Stock Quinteros</option></select></label>

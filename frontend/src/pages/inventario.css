@@ -1,0 +1,19 @@
+.inventario-module { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; min-width: 0; }
+.inventario-panel { padding: clamp(1rem, 3vw, 1.75rem); border-radius: 1rem; min-width: 0; }
+.inventario-module h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: .5rem; }
+.inventario-module h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; }
+.inventario-module p { line-height: 1.6; }
+.inventario-table { overflow-x: auto; max-width: 100%; margin-top: 1rem; }
+.inventario-table table { min-width: 36rem; width: 100%; }
+.inventario-table caption { text-align: left; padding: .5rem 0; }
+.inventario-orders { display: grid; gap: .75rem; margin-top: 1rem; padding: 0; list-style: none; }
+.inventario-order { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; padding: 1rem; border: 1px solid var(--border); border-radius: .75rem; }
+.inventario-order > div { min-width: 0; overflow-wrap: anywhere; }
+.inventario-pagination { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-top: 1rem; }
+.inventario-confirmacion { margin: auto; max-width: min(32rem, calc(100vw - 2rem)); color: var(--text); padding: 1.5rem; border-radius: 1rem; }
+.inventario-confirmacion::backdrop { background: #0009; }
+.inventario-confirmacion ul { padding-left: 1.25rem; margin-top: .75rem; list-style: disc; }
+@media (max-width: 600px) {
+  .inventario-order .action { width: 100%; }
+  .inventario-panel { border-radius: .75rem; }
+}

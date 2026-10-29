@@ -11,6 +11,7 @@ const money = (value: number) => new Intl.NumberFormat('es-AR', { style: 'curren
 
 function EstadoActions({ pedido, busy, onChange }: { pedido: Pedido; busy: boolean; onChange: (id: number, state: string) => void }) {
   const [destino, setDestino] = useState(pedido.siguienteEstado ?? '')
+  useEffect(() => { setDestino(pedido.siguienteEstado ?? '') }, [pedido.siguienteEstado])
   if (!pedido.siguienteEstado) return <span className="muted">Estado final</span>
   return <div className="state-controls"><label>Destino<select className="field" value={destino} onChange={event => setDestino(event.target.value)}>{estados.map(estado => <option key={estado} value={estado}>{label(estado)}</option>)}</select></label><button className="action" disabled={busy} onClick={() => onChange(pedido.id, destino)}>Cambiar estado</button></div>
 }
@@ -23,6 +24,13 @@ export function PedidosPage({ operaciones, ofertaInicial }: { operaciones: boole
   const [creating, setCreating] = useState(!!ofertaInicial)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [inventarioHabilitado, setInventarioHabilitado] = useState(false)
+  useEffect(() => {
+    if (!operaciones) return
+    let active = true
+    api('/stock/disponibilidad').then(estado => { if (active) setInventarioHabilitado(estado.habilitado) }).catch(() => {})
+    return () => { active = false }
+  }, [operaciones])
   const [attempt, setAttempt] = useState(0)
   const [ofertaId, setOfertaId] = useState(String(ofertaInicial ?? ''))
   const [cantidades, setCantidades] = useState<Record<string, number>>({})
@@ -62,7 +70,7 @@ export function PedidosPage({ operaciones, ofertaInicial }: { operaciones: boole
   return <>
     <div className="view-toolbar"><p className="muted">{operaciones ? 'Seguimiento y ciclo de vida de los pedidos.' : 'Realizá un pedido y consultá su estado.'}</p><div className="form-actions">{operaciones && <button className="theme-switch" disabled={busy} onClick={preparar}>Preparar datos de ejemplo</button>}<button className="action" disabled={busy || !contexto?.ofertas.length} onClick={() => setCreating(!creating)}>{creating ? 'Cerrar formulario' : '+ Nuevo pedido'}</button></div></div>
     {error && <p role="alert" className="notice error-text">{error}</p>}{success && <p role="status" className="notice accent">{success}</p>}
-    <div className="surface roadmap-panel mb-6"><p className="eyebrow">CICLO DEL PEDIDO</p><div className="state-timeline">{estados.map((estado, i) => <span key={estado}><b>{i + 1}</b> {label(estado)}</span>)}</div><p className="muted mt-4">{operaciones ? 'Cada estado controla cuál es el próximo paso permitido. Los saltos y retrocesos se rechazan.' : 'Operaciones actualizará el estado de tu pedido.'}</p><p className="muted mt-2">Este incremento demuestra el ciclo de estados; las reservas y movimientos de inventario se integrarán en la siguiente etapa.</p></div>
+    <div className="surface roadmap-panel mb-6"><p className="eyebrow">CICLO DEL PEDIDO</p><div className="state-timeline">{estados.map((estado, i) => <span key={estado}><b>{i + 1}</b> {label(estado)}</span>)}</div><p className="muted mt-4">{operaciones ? 'Cada estado controla cuál es el próximo paso permitido. Los saltos y retrocesos se rechazan.' : 'Operaciones actualizará el estado de tu pedido.'}</p><p className="muted mt-2">{operaciones ? inventarioHabilitado ? 'Iniciar preparación reserva todo el pedido; despachar consume su reserva una sola vez.' : 'El control de inventario está pendiente de habilitación en este entorno.' : 'Operaciones controla la preparación y entrega de tu pedido.'}</p></div>
     {!loading && contexto?.ofertas.length === 0 && <p className="notice muted">No hay ofertas publicadas vigentes. {operaciones ? 'Podés preparar datos de ejemplo para la demostración.' : 'Consultá a Operaciones.'}</p>}
     {creating && contexto && <section className="surface form-panel"><h2>Nuevo pedido</h2><form onSubmit={crear}>
       {operaciones && <label>Cliente<select className="field" name="clienteId" required defaultValue=""><option value="" disabled>Seleccionar cliente</option>{contexto.clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select></label>}
