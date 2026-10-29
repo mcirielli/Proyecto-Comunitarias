@@ -24,6 +24,10 @@ public class CompraService {
     private final CoberturaCompraRepository coberturas;
     private final Map<TipoCompra,CompraStrategy> estrategias;
     private final Clock clock;
+    private CoberturaInventarioService inventario;
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    public void configurarInventario(CoberturaInventarioService inventario){this.inventario=inventario;}
+    @jakarta.persistence.PersistenceContext private jakarta.persistence.EntityManager entityManager;
 
 
     //Constructor del servicio de compras
@@ -60,12 +64,14 @@ public class CompraService {
 
         if (!proveedor.getActivo()) throw new ReglaNegocioException("Proveedor inactivo");
         List<Map<Long,Integer>> pedidos=new ArrayList<>();
+        Map<Long,Pedido> pedidosDominio=new TreeMap<>();
         Map<Long,Integer> manual=new TreeMap<>();
         Map<Long,Integer> total=new TreeMap<>();
 
         // Orden estable de locks: primero pedidos y luego productos, también al emitir.
         for (Long id : new TreeSet<>(request.pedidos())) {
             var pedido=abastecimiento.bloquearPedido(id).orElseThrow(() -> new RecursoNoEncontradoException("Pedido inexistente"));
+            pedidosDominio.put(id,pedido);
             if(pedido.getEstado()!=EstadoPedido.CONFIRMADO) throw new ReglaNegocioException("Solo se abastecen pedidos CONFIRMADO");
             Map<Long,Integer> lineas=new TreeMap<>();
             pedido.getDetalles().forEach(d -> lineas.put(d.getProducto().getId(),d.getCantidad()));
@@ -87,13 +93,15 @@ public class CompraService {
             throw new ReglaNegocioException("Algún pedido ya tiene cobertura registrada");
 
         Map<Long,Integer> libre=new TreeMap<>(), abiertas=new TreeMap<>();
-        stock.findByProductoIdIn(ids).forEach(s -> libre.put(s.getProductoId(),s.getCantidadDisponible()));
+        if(inventario!=null)libre.putAll(inventario.leerLibre(ids));
+        else stock.findByProductoIdIn(ids).forEach(s -> libre.put(s.getProductoId(),s.getCantidadDisponible()));
         ordenes.findByEstadoIn(List.of(EstadoCompra.EMITIDA,EstadoCompra.PENDIENTE)).forEach(o ->
             o.getDetalles().forEach(d -> abiertas.merge(d.getProducto().getId(),d.getCantidad(),Math::addExact)));
 
 
         // Ledger conservador aprobado para demo; recepción/liberación queda en inventario.
-        coberturas.findAll().forEach(c -> c.getAsignaciones().forEach(a -> {
+        if(inventario!=null) inventario.descontar(ids,libre,abiertas);
+        else coberturas.findAll().forEach(c -> c.getAsignaciones().forEach(a -> {
             libre.compute(a.getProductoId(),(id,n) -> Math.max(0,(n==null?0:n)-a.getStock()));
             abiertas.compute(a.getProductoId(),(id,n) -> Math.max(0,(n==null?0:n)-a.getAbierta()));
         }));
@@ -124,6 +132,7 @@ public class CompraService {
         }
         // Un único registro de solicitud para ambos modos garantiza unicidad global del UUID.
         Long coberturaId=coberturas.saveAndFlush(new CoberturaCompra(request.claveSolicitud(),actor.email(),clock.instant(),new HashSet<>(request.pedidos()),orden,asignaciones)).getId();
+        if(inventario!=null && tipo==TipoCompra.DEMANDA_CLIENTES)inventario.registrar(coberturaId,pedidosDominio,libre);
         return new ResultadoCompraResponse(coberturaId,orden==null?null:CompraResponse.de(orden),orden==null?"Demanda cubierta sin compra nueva":"Compra registrada");
     }
 
@@ -158,9 +167,11 @@ public class CompraService {
     }
     public CompraResponse emitir(Long id, SessionResponse actor) {
         exigirRol(actor,"OPERACIONES");
-        var orden=buscar(id);
-        for(Long productoId:orden.getDetalles().stream().map(d -> d.getProducto().getId()).sorted().toList())
+        var lectura=inventario==null?buscar(id):ordenes.findById(id).orElseThrow(() -> new RecursoNoEncontradoException("Compra inexistente"));
+        for(Long productoId:lectura.getDetalles().stream().map(d -> d.getProducto().getId()).sorted().toList())
             abastecimiento.bloquearProducto(productoId).orElseThrow(() -> new RecursoNoEncontradoException("Producto inexistente"));
+        var orden=inventario==null?lectura:buscar(id);
+        if(inventario!=null)entityManager.refresh(orden,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
         orden.emitir(actor.email(),clock.instant()); return CompraResponse.de(orden);
     }
     private OrdenCompra buscar(Long id) { return ordenes.bloquear(id).orElseThrow(() -> new RecursoNoEncontradoException("Compra inexistente")); }

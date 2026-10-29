@@ -18,10 +18,15 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, properties={
     "app.compras.enabled=true",
+    "app.inventario.enabled=true",
     "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration"})
 @ActiveProfiles("supabase")
 class AuthFlowTest {
     @MockBean ar.edu.uade.comunitarias.service.CompraService compras;
+    @MockBean ar.edu.uade.comunitarias.service.StockService inventario;
+    @MockBean ar.edu.uade.comunitarias.service.CoberturaInventarioService coberturaInventario;
+    @MockBean ar.edu.uade.comunitarias.service.StockConsultaService consultaInventario;
+    @MockBean ar.edu.uade.comunitarias.service.RecepcionService recepcionInventario;
     @MockBean UsuarioRepository usuarios;
     @MockBean ClienteRepository clientes;
     @MockBean OfertaRepository ofertas;
@@ -32,6 +37,36 @@ class AuthFlowTest {
     @Autowired ObjectMapper json;
     @LocalServerPort int port;
     HttpClient client;
+    @Test void erroresDeSesionYLoginSonJsonUtf8() throws Exception {
+        var sinSesion=get("/api/stock");assertEquals(401,sinSesion.statusCode());
+        assertTrue(sinSesion.headers().firstValue("content-type").orElse("").toLowerCase().contains("charset=utf-8"));
+        assertEquals("Sesión requerida",json.readTree(sinSesion.body()).get("error").asText());
+        account("OPERACIONES",true,true);
+        var invalido=post("/api/auth/login","email=demo%40example.org&password=wrong",csrf());
+        assertEquals(401,invalido.statusCode());assertEquals("Credenciales inválidas",json.readTree(invalido.body()).get("error").asText());
+    }
+    @Test void inventarioConservaRolesYCsrf() throws Exception {
+        assertEquals(401,get("/api/stock").statusCode());
+        account("CLIENTE",true,true);assertEquals(200,login(csrf()).statusCode());
+        assertEquals(403,get("/api/stock").statusCode());
+        assertEquals(403,post("/api/compras/1/recepcion","",csrf()).statusCode());
+        post("/api/auth/logout","",csrf());
+        account("GERENCIA",true,true);assertEquals(200,login(csrf()).statusCode());
+        assertEquals(200,get("/api/stock").statusCode());
+        assertEquals(403,post("/api/compras/1/recepcion","",csrf()).statusCode());
+        post("/api/auth/logout","",csrf());
+        account("OPERACIONES",true,true);assertEquals(200,login(csrf()).statusCode());
+        assertEquals(403,post("/api/compras/1/recepcion","",null).statusCode());
+        assertEquals(400,post("/api/compras/1/recepcion","cantidad=99",csrf()).statusCode());
+        verifyNoInteractions(recepcionInventario);
+        assertEquals(200,post("/api/compras/1/recepcion","",csrf()).statusCode());
+        verify(recepcionInventario).recibir(eq(1L),any());
+    }
+    @Test void conflictoRecepcionSeInformaSinExitoFalso() throws Exception {
+        account("OPERACIONES",true,true);assertEquals(200,login(csrf()).statusCode());
+        when(recepcionInventario.recibir(eq(1L),any())).thenThrow(new ar.edu.uade.comunitarias.domain.ReglaNegocioException("Orden ya recibida"));
+        assertEquals(409,post("/api/compras/1/recepcion","",csrf()).statusCode());
+    }
     CookieManager cookies;
     @BeforeEach void setup() {
         cookies = new CookieManager(null, CookiePolicy.ACCEPT_ALL);

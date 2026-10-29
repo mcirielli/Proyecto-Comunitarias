@@ -1,5 +1,32 @@
 # Código pendiente y reparto del equipo
 
+Integración 29/10/2026: main incorporó Factura/Pago de Tino mediante PR #7.
+Andy incorpora ese main a65cb17 y resuelve los seis archivos compartidos sin
+descartar Inventario ni Facturación/Pagos. Las referencias siguientes a revisión
+pendiente de Tino son históricas. Ver reportes/2026-10-29-integracion-main-en-andy.md.
+
+Cierre técnico Andy 29/10/2026: C02/C03 y conciliación C01 verificados; pedido #51
+ENTREGADO, libre/reservado cero, INT-PED-51 emitida sin afectar inventario. Andy:
+128 estándar; copia conjunta con Tino: 153 estándar y 35 Supabase aprobadas.
+Quedan revisión humana y merges del equipo, no pendientes funcionales de este
+incremento. Ver reportes/2026-10-29-cierre-inventario-andy.md e INVENTARIO_ACEPTACION.md.
+Los estados de verificación/preparación siguientes se preservan como antecedentes.
+
+Verificación 29/10/2026: SQL 004 aplicado con autorización, 127 pruebas estándar y
+20 Supabase aprobadas. Demo HTTP completa; segundo recorrido de navegador dejó
+pedido #51 EN_PREPARACION (producto #2 libre 0/reservado 4). Falta cerrar ese
+recorrido y la integración Factura/Pago de Tino. El estado de preparación del
+28/10 que sigue es histórico. Ver reportes/2026-10-29-verificacion-inventario.md.
+
+Avance Andy 28/10/2026: C02/C03 e integración de cobertura preparados en código,
+políticas/modelo aprobados; 127 pruebas estándar, build frontend y Docker correctos.
+Propuesta 004 pendiente de autorización específica/aplicación. Sin aceptación
+Supabase/concurrencia/demo de inventario. Ver [diagnóstico y estado](INVENTARIO_RECEPCION.md)
+y [reporte del frente](reportes/2026-10-28-inventario-andy-preparado.md).
+El reparto actual autoriza a Andy como editor de inventario/recepción/PedidoService
+y adaptación indispensable de C01; Tino conserva Factura/Pago. Las tablas originales
+de planificación siguientes se preservan como antecedente, no como cierre del módulo.
+
 C06 implementado en tino y verificado, pendiente revisión PR: emisión interna,
 pagos parciales/saldo, idempotencia y roles. 003 aplicada con autorización;
 136 pruebas estándar y 20 Supabase aprobadas. No modifica integración de inventario

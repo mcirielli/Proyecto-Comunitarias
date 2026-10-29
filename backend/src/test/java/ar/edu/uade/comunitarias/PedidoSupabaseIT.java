@@ -9,12 +9,13 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.*;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.*;
-@SpringBootTest @ActiveProfiles("supabase") @ContextConfiguration(initializers=SupabaseTestEnvironment.class) @Transactional
+@SpringBootTest(properties={"app.compras.enabled=true","app.inventario.enabled=true"}) @ActiveProfiles("supabase") @ContextConfiguration(initializers=SupabaseTestEnvironment.class) @Transactional
 class PedidoSupabaseIT {
     @Autowired ClienteRepository clientes;
     @Autowired ProductoRepository productos;
@@ -22,12 +23,19 @@ class PedidoSupabaseIT {
     @Autowired PedidoRepository pedidos;
     @Autowired PedidoService service;
     @Autowired EntityManager em;
+    @Autowired StockRepository stock;
+    @AfterEach void limpiarIdentidad(){org.springframework.security.core.context.SecurityContextHolder.clearContext();}
     @Test void cicloPersistidoReconstruyeStateYPreciosHistoricos() {
         var cliente=clientes.saveAndFlush(new Cliente("IT_STATE_"+UUID.randomUUID()));
         var producto=productos.saveAndFlush(new Producto("IT_STATE",null,null,"unidad"));
         var hoy=LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires"));
         var oferta=new Oferta("IT_STATE",hoy,hoy.plusDays(1));oferta.agregar(producto,new BigDecimal("10.25"));ofertas.saveAndFlush(oferta);
         var actor=new SessionResponse(-2L,"Demo","operaciones@demo.local","OPERACIONES");
+        // Fixture propio con rollback: ahora el circuito integra reserva y consumo reales.
+        var saldo=new Stock(producto.getId());saldo.ingresar(2);stock.saveAndFlush(saldo);
+        var principal=new ar.edu.uade.comunitarias.service.UsuarioPrincipal(actor,"unused");
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+            new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(principal,null,principal.getAuthorities()));
         var response=service.crear(new CrearPedidoRequest(cliente.getId(),oferta.getId(),List.of(new CrearPedidoRequest.Item(producto.getId(),2))),actor);
         em.clear();
         assertEquals(EstadoPedido.RECIBIDO,pedidos.findById(response.id()).orElseThrow().state().codigo());
@@ -38,6 +46,7 @@ class PedidoSupabaseIT {
         }
         em.clear();var finalizado=pedidos.findById(response.id()).orElseThrow();
         assertInstanceOf(EntregadoState.class,finalizado.state()); assertNotNull(finalizado.getFechaDespacho());assertNotNull(finalizado.getFechaEntrega());
+        assertEquals(0,stock.findByProductoId(producto.getId()).orElseThrow().existencia());
         assertThrows(TransicionInvalidaException.class,() -> service.cambiarEstado(response.id(),EstadoPedido.RECIBIDO));
     }
 }

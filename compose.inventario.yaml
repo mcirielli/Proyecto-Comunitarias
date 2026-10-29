@@ -1,0 +1,7 @@
+# Solo después de aplicar 004 con aprobación y verificar permisos/reconciliación.
+# Usar con compose.yaml, compose.supabase.yaml, compose.demo.yaml y compose.compras.yaml.
+services:
+  backend:
+    environment:
+      INVENTARIO_ENABLED: "true"
+      COMPRAS_ENABLED: "true"

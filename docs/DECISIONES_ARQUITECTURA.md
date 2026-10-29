@@ -1,5 +1,39 @@
 # Decisiones de arquitectura
 
+## Integración de main en Andy — 29/10/2026
+
+El usuario solicitó resolver los conflictos que impedían integrar la PR de Andy.
+Se incorpora origin/main a65cb17 en andy, con historial conservado. Main ya incluye
+Factura/Pago de Tino por PR #7. La resolución es aditiva en rutas/permisos, flags,
+navegación y documentación; no modifica reglas aprobadas ni archivos propios de
+Factura/Pago. No autoriza fusionar la PR #6 a main, ejecutar migraciones o publicar
+servicios. Evidencia: reportes/2026-10-29-integracion-main-en-andy.md.
+
+## Ejecución autorizada de inventario 004 — 28/10/2026
+
+Tras revisar el SQL exacto, el usuario respondió «Autorizar 004 y validación real».
+Se aplicó únicamente 004, con respaldo public y verificación de RLS/permisos;
+se reconstruyeron dos unidades de cobertura demostrable sin inventar stock ni
+movimientos históricos. Esto resuelve la autorización pendiente del apartado
+anterior de preparación, no autoriza reejecutar migraciones, merge o producción.
+Siete pruebas nuevas de inventario y trece de regresión Supabase aprobadas.
+Estado actualizado: reportes/2026-10-29-verificacion-inventario.md.
+
+## Inventario y recepción Andy — aprobación del 27/10/2026
+
+Usuario respondió «Aprobar políticas y modelo propuestos» al paquete de
+POLITICAS_INVENTARIO_RECEPCION.md: reserva completa al entrar EN_PREPARACION,
+despacho consume una vez, recepción total solo EMITIDA, continuidad histórica de
+productos inactivos, roles Operaciones/Gerencia y ledger durable por pedido/producto/
+orden. Preserva seis estados, precios históricos, State y Strategy reales, CMP-06;
+evoluciona CMP-07 con fases y trazabilidad, conservando originales.
+
+Autoriza implementar/preparar SQL 004, NO aplicarlo. Migración/backfill específico,
+respaldo y habilitación de inventario requieren aprobación posterior sobre script
+exacto. Código preparado detrás de opt-in apagado; aceptación Supabase/concurrencia
+y demo todavía pendientes. No autoriza cancelaciones/ajustes manuales, cambios
+de Factura/Pago de Tino, despliegue o merge. La aprobación histórica 002 no se amplía.
+
 ## Facturación interna y pagos — aprobación 27/10, cierre 28/10/2026
 
 El usuario autorizó C06 en tino, commit/push y PR a main, sin merge/auto-merge.
