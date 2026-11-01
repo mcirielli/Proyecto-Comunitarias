@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { Maestro } from '../types/session'
 import { api, write } from '../services/http'
+import { HistorialPreciosPanel } from './HistorialPreciosPanel'
 
 export function MaestrosPage({ tab }: { tab: 'productos' | 'proveedores' }) {
   const [rows, setRows] = useState<Maestro[]>([])
@@ -12,6 +13,7 @@ export function MaestrosPage({ tab }: { tab: 'productos' | 'proveedores' }) {
   const [attempt, setAttempt] = useState(0)
   const [creating, setCreating] = useState(false)
   const [search, setSearch] = useState('')
+  const [historial, setHistorial] = useState<number | null>(null)
   const field = 'field'
   useEffect(() => {
     let active = true; setLoading(true); setError('')
@@ -55,10 +57,11 @@ export function MaestrosPage({ tab }: { tab: 'productos' | 'proveedores' }) {
             <label>Teléfono<input className={field} name="telefono" maxLength={30} /></label>
           </>}
           <div className="form-actions"><button className="action" disabled={busy}>{busy ? 'Guardando…' : 'Guardar registro'}</button><button type="button" className="theme-switch" disabled={busy} onClick={() => setCreating(false)}>Cancelar</button></div></form></section>}
+    {tab === 'productos' && historial != null && <HistorialPreciosPanel productoId={historial} onClose={() => setHistorial(null)} />}
     <section className="surface table-panel" aria-label={'Listado de ' + tab}>
       <div className="panel-heading"><div><h2>{tab === 'productos' ? 'Catálogo de productos' : 'Directorio de proveedores'}</h2><p className="muted">{loading ? 'Consultando registros…' : `${rows.length} registros en total`}</p></div><button className="theme-switch" disabled={loading || busy} onClick={() => setAttempt(value => value + 1)}>Actualizar</button></div>
       <div className="search-bar"><label className="muted" htmlFor="search-maestros">Buscar por nombre</label><input id="search-maestros" className="field" value={search} onChange={event => setSearch(event.target.value)} placeholder={tab === 'productos' ? 'Buscar un producto…' : 'Buscar un proveedor…'} /></div>
-      {loading ? <p className="empty-state" role="status">Cargando registros…</p> : error ? <p className="empty-state muted">No se pudo actualizar el listado. Volvé a intentar.</p> : filtered.length === 0 ? <p className="empty-state muted">{search ? 'No hay coincidencias para tu búsqueda.' : 'Todavía no hay registros. Creá el primero para comenzar.'}</p> : <div className="table-scroll"><table><thead><tr><th>ID</th><th>{tab === 'productos' ? 'Producto' : 'Razón social'}</th><th>{tab === 'productos' ? 'Unidad' : 'Email'}</th><th>Estado</th><th className="text-right">Acciones</th></tr></thead><tbody>{filtered.map(row => <tr key={row.id}><td className="muted">#{row.id}</td><td className="font-semibold">{row.nombre ?? row.razonSocial}</td><td className="muted">{tab === 'productos' ? row.unidadMedida : row.email || '—'}</td><td><span className={'state-badge ' + (row.activo ? 'status-available' : 'status-checking')}>{row.activo ? 'Activo' : 'Inactivo'}</span></td><td className="text-right"><button className="row-action" disabled={busy} onClick={() => toggle(row)}>{row.activo ? 'Desactivar' : 'Activar'}</button></td></tr>)}</tbody></table></div>}
+      {loading ? <p className="empty-state" role="status">Cargando registros…</p> : error ? <p className="empty-state muted">No se pudo actualizar el listado. Volvé a intentar.</p> : filtered.length === 0 ? <p className="empty-state muted">{search ? 'No hay coincidencias para tu búsqueda.' : 'Todavía no hay registros. Creá el primero para comenzar.'}</p> : <div className="table-scroll"><table><thead><tr><th>ID</th><th>{tab === 'productos' ? 'Producto' : 'Razón social'}</th><th>{tab === 'productos' ? 'Unidad' : 'Email'}</th><th>Estado</th><th className="text-right">Acciones</th></tr></thead><tbody>{filtered.map(row => <tr key={row.id}><td className="muted">#{row.id}</td><td className="font-semibold">{row.nombre ?? row.razonSocial}</td><td className="muted">{tab === 'productos' ? row.unidadMedida : row.email || '—'}</td><td><span className={'state-badge ' + (row.activo ? 'status-available' : 'status-checking')}>{row.activo ? 'Activo' : 'Inactivo'}</span></td><td className="text-right">{tab === 'productos' && <button className="row-action" style={{ marginRight: '.5rem' }} aria-pressed={historial === row.id} onClick={() => { setHistorial(row.id); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Ver precios</button>}<button className="row-action" disabled={busy} onClick={() => toggle(row)}>{row.activo ? 'Desactivar' : 'Activar'}</button></td></tr>)}</tbody></table></div>}
     </section>
   </>
 }
