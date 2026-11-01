@@ -41,6 +41,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/compras", "/api/compras/**").hasAnyRole("OPERACIONES", "GERENCIA")
                         .requestMatchers("/api/compras", "/api/compras/**").denyAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/reportes", "/api/reportes/**").hasRole("GERENCIA")
+                        .requestMatchers("/api/reportes", "/api/reportes/**").denyAll()
+
                         .requestMatchers(HttpMethod.GET, "/api/ofertas").hasAnyRole("CLIENTE", "OPERACIONES")
                         .requestMatchers("/api/ofertas", "/api/ofertas/**").hasRole("OPERACIONES")
                         .requestMatchers("/api/productos", "/api/productos/**", "/api/proveedores", "/api/proveedores/**").hasRole("OPERACIONES")
